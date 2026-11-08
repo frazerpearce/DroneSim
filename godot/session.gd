@@ -1,6 +1,6 @@
 extends Node
 const Transport = preload("res://transport.gd")
-const PROTOCOL := "DroneSim-0.3.0-courses-v1"
+const PROTOCOL := "DroneSim-0.3.1-courses-v1"
 var net = Transport.new()
 var game: Node3D
 var status := "Single player"
@@ -10,6 +10,8 @@ var scores := {}
 var accumulator := 0.0
 var connect_age := 0.0
 var player_name := "Pilot"
+var results = preload("res://results.gd").new()
+signal results_changed
 var local_best := 0.0
 var course_bests := {}
 var announced := false
@@ -22,8 +24,7 @@ func offline() -> void:
  ghosts.clear()
  states.clear()
  scores.clear()
- local_best = 0
- course_bests.clear()
+ restore_player_times()
  announced = false
  snapshot_serial = 0
  received_serial = -1
@@ -46,6 +47,8 @@ func join(address: String, port: int) -> void:
 func record(time: float) -> void:
  if local_best == 0 or time < local_best: local_best = time
  course_bests[game.course.selected] = local_best
+ results.record(player_name,game.course.course_id(),time)
+ results_changed.emit()
 
 func local_state() -> Dictionary:
  return {"protocol":PROTOCOL,"course":game.course.selected,"name":player_name.left(24),"transform":game.drone.transform,"time":game.course.seconds,"gate":game.course.next_gate,"state":game.course.state,"best":local_best}
@@ -122,6 +125,7 @@ func update_ghosts(dt: float) -> void:
  for id in states:
   if id == own or not states[id] is Dictionary or not valid(states[id]) or states[id].course!=game.course.selected: continue
   var data: Dictionary = states[id]
+  if data.best>0 and results.record(data.name,"hangar-%02d-v1" % (int(data.course)+1),data.best): results_changed.emit()
   if not ghosts.has(id):
    var ghost := Node3D.new() # visual only: no bodies, areas or collision shapes
    game.add_child(ghost)
@@ -168,7 +172,8 @@ func _exit_tree() -> void:
 
 func course_changed() -> void:
  # Completion records are already stored under their course; restore the new selection.
- local_best = course_bests.get(game.course.selected,0.0)
+ local_best = results.best(player_name,game.course.course_id())
+ game.course.best = local_best
  states.clear()
  for ghost in ghosts.values(): ghost.queue_free()
  ghosts.clear()
@@ -184,3 +189,27 @@ func accept_snapshot(data: Dictionary) -> bool:
  if index!=game.course.selected: game.select_course(index,true)
  states = data.pilots
  return true
+
+func _ready() -> void:
+ if game.test_mode: results.path=""
+ results.load_file()
+ restore_player_times()
+
+func set_player_name(value: String) -> void:
+ var name := value.strip_edges().left(24)
+ if name.is_empty(): name="Pilot"
+ if name==player_name: return
+ game.course.invalidate("PLAYER CHANGED — reset")
+ player_name=name
+ restore_player_times()
+ results_changed.emit()
+
+func restore_player_times() -> void:
+ course_bests.clear()
+ game.course.best_times.clear()
+ for i in range(game.course.Catalog.COURSES.size()):
+  var time: float = results.best(player_name,"hangar-%02d-v1" % (i+1))
+  course_bests[i]=time
+  game.course.best_times[i]=time
+ local_best=results.best(player_name,game.course.course_id())
+ game.course.best=local_best

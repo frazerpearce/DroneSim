@@ -1,4 +1,4 @@
-# DroneSim 0.3.0 — User guide
+# DroneSim 0.3.1 — User guide
 
 A keyboard-controlled flight demonstrator for Windows and macOS.
 For download and installation, see [README.md](README.md).
@@ -59,7 +59,7 @@ available to open/close setup. Preferences save locally between runs.
 
 Open **Escape → Flight & course** and select a course from the dropdown.
 Changing course resets the drone to the starting plinth and clears the current
-attempt. Each course retains its own best time during the session. Your course
+attempt. Each course retains its own best time between launches under the pilot name. Your course
 choice is remembered for the next launch. Difficulty labels are design targets,
 not ratings established through user testing.
 
@@ -97,7 +97,7 @@ start of that contact.
 
 Crashing, pausing, opening setup or losing window focus during a run invalidates
 that attempt. Press **R** to try again. Your best completed time remains available
-during the session. The display shows milliseconds, but timing resolves to the
+between launches under the pilot name. The display shows milliseconds, but timing resolves to the
 120 Hz physics tick.
 
 ## Race over a local network
@@ -120,7 +120,7 @@ solid for each pilot.
 
 Each pilot starts their own timer on takeoff. The leaderboard ranks best valid
 completed times: **fastest wins**. There is no shared countdown or fixed session
-end. Hosting, joining or disconnecting clears session leaderboard times. Times
+end. Hosting, joining or disconnecting clears remote live entries; saved personal bests remain. Times
 are self-reported, suitable for friendly racing rather than cheat-resistant competition.
 
 ## Reading the instruments
@@ -158,3 +158,15 @@ numerical flight telemetry readouts; race results remain numerical.
   its firewall. Internet matchmaking is not provided.
 
 The flight model is simplified and is not a substitute for real-world training.
+
+## Saved times by player and course
+
+**Escape → Best times** shows a small table with one row per player and ten
+course columns. It retains the fastest completed time in each cell and saves
+automatically. Enter a name under **Flight & course**, then press Enter or leave
+the field to load that player's history. Capitalisation and surrounding spaces
+do not create a new player. Changing names invalidates an airborne attempt.
+
+Your personal bests persist across restarts, course changes and LAN disconnects.
+LAN competitors' received bests are saved locally too. These names are labels,
+not verified accounts; sharing the same name shares a local score history.

@@ -2,6 +2,7 @@ extends SceneTree
 func _initialize() -> void: call_deferred("run")
 func run() -> void:
  var game = load("res://main.tscn").instantiate()
+ game.test_mode=true
  root.add_child(game)
  game.select_course(0,true)
  game.controls.restore_defaults()

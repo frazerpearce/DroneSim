@@ -17,10 +17,10 @@ Developed by **Frazer Pearce** as an experiment in rapid, AI-assisted software c
 
 ## Download and install
 
-**Current development version: 0.3.0** — ten selectable courses and analogue flight instruments.
+**Current development version: 0.3.1** — ten selectable courses and analogue flight instruments.
 
 The published downloads below are **0.2.3** (the original single-course release).
-The new 0.3.0 packages are built locally; their upload is pending. To use the new
+The new 0.3.1 packages are built locally; their upload is pending. To use the new
 courses immediately, run the current source with Godot.
 
 | Platform | Download |
@@ -81,6 +81,22 @@ The HUD uses analogue instruments rather than numerical flight telemetry:
 
 Race times and leaderboard results remain numerical.
 
+## Saved best times
+
+Open **Escape → Best times** for a compact player-by-course table. Each cell is
+the fastest completed time for that player and course; a dash means no result.
+Course numbers are explained below the table, with full names in cell tooltips.
+
+Enter a pilot name in **Flight & course**, then press Enter or leave the field
+to load that player's saved results. Names ignore case and surrounding spaces.
+Changing player during a run invalidates the attempt, so results cannot be
+accidentally assigned to a different pilot. Changing course loads the matching best.
+
+Times save automatically on this computer and survive restarts and LAN disconnects.
+Completed best times received from LAN competitors are also retained by name.
+These are local profiles, not accounts or authenticated identities; no cloud sync
+is involved. The data is in `times.json` in Godot's per-user DroneSim data directory.
+
 ## Default controls
 
 | Key | Action |
@@ -111,7 +127,7 @@ available to open/close setup. Preferences save locally between runs.
 
 Open **Escape → Flight & course** and select a course from the dropdown.
 Changing course resets the drone to the starting plinth and clears the current
-attempt. Each course retains its own best time during the session. Your course
+attempt. Each course retains its own best time between launches under the pilot name. Your course
 choice is remembered for the next launch. Difficulty labels are design targets,
 not ratings established through user testing.
 
@@ -149,7 +165,7 @@ start of that contact.
 
 Crashing, pausing, opening setup or losing window focus during a run invalidates
 that attempt. Press **R** to try again. Your best completed time remains available
-during the session. The display shows milliseconds, but timing resolves to the
+between launches under the pilot name. The display shows milliseconds, but timing resolves to the
 120 Hz physics tick.
 
 ## Race over a local network
@@ -172,7 +188,7 @@ solid for each pilot.
 
 Each pilot starts their own timer on takeoff. The leaderboard ranks best valid
 completed times: **fastest wins**. There is no shared countdown or fixed session
-end. Hosting, joining or disconnecting clears session leaderboard times. Times
+end. Hosting, joining or disconnecting clears remote live entries; saved personal bests remain. Times
 are self-reported, suitable for friendly racing rather than cheat-resistant competition.
 
 ## About the flight model
@@ -213,7 +229,7 @@ publishes ZIP files to GitHub Releases after its checks pass.
 
 ## Status and credits
 
-Current development version: **0.3.0**. **Version 0.2.3 was tested successfully
+Current development version: **0.3.1**. **Version 0.2.3 was tested successfully
 on Windows and over LAN by Frazer Pearce.** This replaces the earlier unverified
 platform/network status for that version. The new multi-course selection and
 host/client course synchronisation have automated coverage where possible, but

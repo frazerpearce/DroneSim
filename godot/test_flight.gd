@@ -9,6 +9,7 @@ func _initialize() -> void:
  call_deferred("run")
 func run() -> void:
  var scene = load("res://main.tscn").instantiate()
+ scene.test_mode=true
  root.add_child(scene)
  scene.select_course(0,true)
  scene.set_physics_process(false)

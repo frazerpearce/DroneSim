@@ -11,6 +11,8 @@ var address: LineEdit
 var port: SpinBox
 var course_picker: OptionButton
 var course_info: Label
+var times_table: Tree
+var times_status: Label
 var previous_pause := false
 
 func label(parent: Node, text: String) -> Label:
@@ -46,7 +48,7 @@ func _ready() -> void:
  add_child(panel)
  var box := VBoxContainer.new()
  panel.add_child(box)
- label(box,"DRONESIM 0.3.0 — SETUP").add_theme_font_size_override("font_size",28)
+ label(box,"DRONESIM 0.3.1 — SETUP").add_theme_font_size_override("font_size",28)
  label(box,"Menus freeze your drone; opening a menu during a timed run invalidates that attempt.")
  tabs = TabContainer.new()
  tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -66,7 +68,9 @@ func _ready() -> void:
  name_field.max_length = 24
  name_field.text = game.session.player_name
  flight.add_child(name_field)
- name_field.text_changed.connect(func(value): game.session.player_name=value; game.save_settings())
+ label(flight,"Press Enter or leave the name field to load that player's saved times.")
+ name_field.text_submitted.connect(func(_value): apply_player())
+ name_field.focus_exited.connect(apply_player)
  var hold := CheckBox.new()
  hold.text = "Altitude hold"
  hold.button_pressed = game.drone.altitude_hold
@@ -87,6 +91,27 @@ func _ready() -> void:
  flight.add_child(fov)
  label(flight,"Lift off the green plinth, pass every gate of the selected course in order,\nthen land on the purple plinth. Green = next; cyan = following gate.\nDotted blue marks the suggested route. Cross gates in the indicated direction.\nTimer starts on takeoff and stops at stable landing contact (0.5 s confirmation).\nFastest valid completed time wins. Reset begins another attempt.\nRemote drones are translucent ghosts: competitors cannot collide.\nLAN times are self-reported; this is a friendly race, not an anti-cheat system.")
  button(flight,"Reset drone and course",func(): game.reset_attempt())
+ var history := page("Best times")
+ label(history,"Best completed time per player and course • saved on this computer")
+ label(history,"Names ignore surrounding spaces and letter case. A dash means no completed run.")
+ times_table=Tree.new()
+ times_table.columns=11
+ times_table.hide_root=true
+ times_table.column_titles_visible=true
+ times_table.set_column_title(0,"Player")
+ times_table.set_column_custom_minimum_width(0,150)
+ for i in range(10):
+  times_table.set_column_title(i+1,"%02d" % (i+1))
+  times_table.set_column_custom_minimum_width(i+1,86)
+ times_table.custom_minimum_size=Vector2(0,260)
+ times_table.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+ history.add_child(times_table)
+ var legend := ""
+ for i in range(10): legend += "%02d: %s%s" % [i+1,game.course.Catalog.COURSES[i].name,"\n" if i%2==1 else "     "]
+ label(history,legend)
+ times_status=label(history,"")
+ game.session.results_changed.connect(refresh_times)
+ refresh_times()
  var lan := page("LAN race")
  label(lan,"Mac and Windows • up to 8 pilots • same version on every machine")
  var addresses: Array[String] = []
@@ -135,16 +160,18 @@ func refresh() -> void:
   for i in range(3): buttons[action][i].text=game.controls.key_label(action,i)
 func show_panel(network := false) -> void:
  if visible:
-  if network: tabs.current_tab=1
+  if network: tabs.current_tab=2
   return
+ refresh_times()
  previous_pause = game.paused
  game.course.invalidate("MENU OPENED — reset")
  game.paused = true
  game.drone.freeze = true
  game.held.clear()
  visible = true
- tabs.current_tab = 1 if network else 0
+ tabs.current_tab = 2 if network else 0
 func close() -> void:
+ apply_player()
  listening = ""
  visible = false
  game.paused = previous_pause
@@ -186,3 +213,25 @@ func refresh_course() -> void:
  var spec: Dictionary = game.course.Catalog.COURSES[game.course.selected]
  course_info.text = "%s • %d gates • %.1f × %.1f m openings\n%s\nIn LAN play the host selects the course for everyone." % [spec.difficulty,spec.points.size(),spec.width,spec.height,spec.hint]
  course_picker.disabled = game.session.net.peer != null and not game.session.net.is_host
+
+func apply_player() -> void:
+ if not name_field: return
+ game.session.set_player_name(name_field.text)
+ name_field.text=game.session.player_name
+ game.save_settings()
+
+func refresh_times() -> void:
+ if not times_table: return
+ times_table.clear()
+ var root := times_table.create_item()
+ var names: Array = game.session.results.players.keys()
+ names.sort()
+ for id in names:
+  var profile: Dictionary = game.session.results.players[id]
+  var item := times_table.create_item(root)
+  item.set_text(0,profile.name)
+  for i in range(10):
+   var seconds: float = game.session.results.best(profile.name,"hangar-%02d-v1" % (i+1))
+   item.set_text(i+1,"%.3f s" % seconds if seconds>0 else "—")
+   item.set_tooltip_text(i+1,game.course.Catalog.COURSES[i].name)
+ times_status.text=game.session.results.error

@@ -10,6 +10,7 @@ var controls = preload("res://controls.gd").new()
 var course: Node3D
 var session: Node
 var setup: Control
+var test_mode := false
 var held := {}
 var wheel_pulses := {}
 
@@ -102,7 +103,7 @@ func _ready() -> void:
  session.game = self
  add_child(session)
  course.completed.connect(session.record)
- controls.load_file("user://bindings.cfg")
+ if not test_mode: controls.load_file("user://bindings.cfg")
  load_settings()
  setup = preload("res://setup.gd").new()
  setup.game = self
@@ -115,6 +116,7 @@ func _ready() -> void:
 
 
 func save_settings() -> void:
+ if test_mode: return
  var config := ConfigFile.new()
  config.set_value("flight","course",course.selected)
  config.set_value("flight","name",session.player_name)
@@ -125,11 +127,13 @@ func save_settings() -> void:
  if result!=OK: push_warning("Settings not saved: "+error_string(result))
 
 func load_settings() -> void:
+ if test_mode: return
  var config := ConfigFile.new()
  if config.load("user://settings.cfg")!=OK: return
  var index: Variant = config.get_value("flight","course",0)
  if index is int: course.select(index)
- session.player_name = str(config.get_value("flight","name","Pilot")).left(24)
+ session.set_player_name(str(config.get_value("flight","name","Pilot")).left(24))
+ session.restore_player_times()
  drone.altitude_hold = config.get_value("flight","hold",true)==true
  course.route.visible = config.get_value("flight","path",true)==true
  var fov: Variant = config.get_value("flight","fov",78.0)

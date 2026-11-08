@@ -1,4 +1,4 @@
-# DroneSim development notes — 0.3.0
+# DroneSim development notes — 0.3.1
 
 Keyboard quadcopter racing in a 40 × 60 × 18 m hangar, for macOS and Windows.
 
@@ -54,13 +54,13 @@ The finish requires all gates of the selected course, contact within the finish 
 0.5 m/s and 0.5 seconds of stable landing. The recorded time is backdated to the
 start of that stable contact. Crashing, pausing, opening setup or losing focus
 invalidates an airborne attempt. Reset to retry. Reset retains your best time;
-starting/joining/disconnecting a LAN session clears session leaderboard times.
+saved personal bests remain when hosting, joining or disconnecting.
 Times resolve to the 120 Hz physics tick, despite displaying three decimals.
 
 ## LAN ghost race
 
 Either Mac or Windows can host up to eight pilots. Everyone must use version
-0.3.0 and the same selected course. Open **Setup → LAN race**:
+0.3.1 and the same selected course. Open **Setup → LAN race**:
 
 1. Host selects the UDP port (default **24568**) and clicks **HOST**.
 2. Other pilots enter the host's LAN IP and the same port, then click **JOIN**.
@@ -139,7 +139,7 @@ Additional dynamics checks cover RPM lag, thrust scaling, spin-down, anisotropic
 drag, force/torque allocation, saturation, unassisted angular acceleration and
 motors-off free fall. The optional live ENet check connects a host/client over loopback, exchanges
 states and times, and checks disconnect cleanup. Version 0.2.3 was manually tested on Windows and over LAN by Frazer Pearce,
-who reported both working. The multi-course changes in 0.3.0 have not yet been
+who reported both working. The multi-course changes in 0.3.1 have not yet been
 manually validated across machines. Windows cross-export alone does not
 constitute Windows gameplay testing.
 
@@ -152,14 +152,29 @@ licences are available at https://godotengine.org/license/.
 clear gate apertures and waypoints. `course.gd` rebuilds gate collision geometry,
 labels and the suggested route when selection changes. The aperture test includes
 a conservative drone footprint margin. Timers, gate progress and spawn state
-reset on a change; best times are held per course during the session.
+reset on a change; best times are saved per player and course across launches.
 
 The selection is exposed in Escape → Flight & course. LAN snapshots include the
 host's selected course; clients apply it before rendering other pilots' states.
 Client course changes are disabled while connected. Pilot state validation checks
 the gate count against that pilot's advertised course. Ghosts and leaderboard
-rows are filtered to the active course. All peers require version 0.3.0.
+rows are filtered to the active course. All peers require version 0.3.1.
 
 `test_courses.gd` checks all ten gate lists, aperture direction, finish detection,
 per-course best restoration, course-length packet validation and the Escape
 selector. Run it with `./run.sh --headless --script res://test_courses.gd`.
+
+## Saved result profiles
+
+`results.gd` stores versioned JSON in `user://times.json`, keyed by a trimmed,
+case-insensitive player name and stable course ID. Only positive, finite best
+times are retained. Writes use a temporary file and rename; unreadable or malformed
+originals are preserved. The Escape Best times table lists all locally known
+players. Completed LAN bests are retained locally; no cloud sync or authentication
+is implied. Changing the active name restores that profile's times and invalidates
+an airborne attempt. New runs cannot be credited to a different name midway.
+
+Scripted scene fixtures set `test_mode` before adding the scene to the tree so
+synthetic completions never read or overwrite real player histories. Persistence
+tests use isolated temporary files and exercise reloads, multiple names/courses,
+best-only updates, profile switching and corrupt-file preservation.

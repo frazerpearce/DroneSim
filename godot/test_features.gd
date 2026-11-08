@@ -6,6 +6,7 @@ func check(ok: bool, message: String) -> void:
 func _initialize() -> void: call_deferred("run")
 func run() -> void:
  var game = load("res://main.tscn").instantiate()
+ game.test_mode=true
  root.add_child(game)
  game.select_course(0,true)
  game.set_physics_process(false)
@@ -74,6 +75,7 @@ func run() -> void:
 
 func lan_check(game: Node) -> void:
  var client_game = load("res://main.tscn").instantiate()
+ client_game.test_mode=true
  root.add_child(client_game)
  client_game.drone.freeze = true
  client_game.set_physics_process(false)
