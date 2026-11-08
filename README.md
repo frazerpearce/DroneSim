@@ -26,9 +26,8 @@ below include the game and its guides; **Godot is not required to play**.
 | Windows (64-bit Intel/AMD) | [DroneSim-0.3.1-Windows.zip](https://github.com/frazerpearce/DroneSim/releases/download/v0.3.1/DroneSim-0.3.1-Windows.zip) |
 | macOS (Apple Silicon and Intel) | [DroneSim-0.3.1-macOS.zip](https://github.com/frazerpearce/DroneSim/releases/download/v0.3.1/DroneSim-0.3.1-macOS.zip) |
 
-Only the latest packaged version is offered in [GitHub Releases](https://github.com/frazerpearce/DroneSim/releases/latest).
-Open **Assets** and select the ZIP for your platform. The source-code ZIP offered
-by GitHub is for developers; it is not the packaged game.
+Download the ZIP for your platform using the direct links above, then extract it.
+The source-code ZIP offered by GitHub is for developers; it is not the packaged game.
 
 Each download includes the guide for its own release. On Windows it is next to
 `DroneSim.exe`; inside the macOS app it is under `Contents/Resources/` (Finder →
