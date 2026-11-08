@@ -1,4 +1,4 @@
-# DroneSim development notes — 0.2.2
+# DroneSim development notes — 0.2.3
 
 Keyboard quadcopter racing in a 40 × 60 × 18 m hangar, for macOS and Windows.
 
@@ -57,7 +57,7 @@ Times resolve to the 120 Hz physics tick, despite displaying three decimals.
 ## LAN ghost race
 
 Either Mac or Windows can host up to eight pilots. Everyone must use version
-0.2.2 and course 01. Open **Setup → LAN race**:
+0.2.3 and course 01. Open **Setup → LAN race**:
 
 1. Host selects the UDP port (default **24568**) and clicks **HOST**.
 2. Other pilots enter the host's LAN IP and the same port, then click **JOIN**.
@@ -81,8 +81,7 @@ course, UI and drone dynamics are specific to DroneSim. Voice chat is not includ
 SI units; 120 Hz six-degree-of-freedom rigid-body integration. Forces act at
 individual rotor positions, so attitude emerges from torque rather than directly
 setting orientation. The attitude/rate controller commands the motors; it does
-not overwrite position, velocity or angular rates. Body angular rates and mean
-rotor RPM are displayed during flight.
+not overwrite position, velocity or angular rates. The flight HUD displays compass, attitude and vertical-speed instruments.
 
 | Parameter | Representative value |
 | --- | --- |

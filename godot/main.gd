@@ -90,11 +90,14 @@ func _ready() -> void:
  add_child(layer)
  hud = Label.new()
  hud.position = Vector2(22,18)
- hud.add_theme_font_size_override("font_size",20)
+ hud.add_theme_font_size_override("font_size",17)
  hud.add_theme_color_override("font_shadow_color",Color.BLACK)
  hud.add_theme_constant_override("shadow_offset_x",2)
  hud.add_theme_constant_override("shadow_offset_y",2)
  layer.add_child(hud)
+ var instruments := preload("res://flight_hud.gd").new()
+ instruments.game = self
+ layer.add_child(instruments)
  session = preload("res://session.gd").new()
  session.game = self
  add_child(session)
@@ -194,9 +197,6 @@ func _process(dt: float) -> void:
   destination.z = clampf(destination.z,-29.5,29.5)
   camera.position = camera.position.lerp(destination,1-exp(-dt*7))
   camera.look_at(drone.position+Vector3(0,0.15,0))
- var rates: Vector3 = drone.basis.transposed()*drone.angular_velocity*180.0/PI
- var rpm := 0.0
- for speed in drone.rotor_speeds: rpm += speed*60.0/TAU/4.0
- var status := "CRASH — R to reset" if drone.crashed else ("PAUSED" if paused else ("ALTITUDE HOLD" if drone.altitude_hold else "MANUAL COLLECTIVE"))
- hud.text = "DRONESIM 0.2.2 | %s | %s\nHeight %.2f m   Speed %.2f m/s   Vertical %+.2f m/s\n\nCOURSE: %s   Gate %d / 6\nTIME %.3f s    BEST %s\nGreen: next gate • Cyan: following • Blue dots: route\nEscape: setup / controls / LAN\n\n%s\n%s" % [status,"FPV" if fpv else "CHASE",drone.position.y,drone.linear_velocity.length(),drone.linear_velocity.y,course.state,course.next_gate,course.seconds,"%.3f s" % course.best if course.best>0 else "—",session.status,session.leaderboard()]
- hud.text += "\nBody rates X/Y/Z: %+.0f / %+.0f / %+.0f deg/s | Mean rotor %.0f RPM" % [rates.x,rates.y,rates.z,rpm]
+ var status := "CRASH — reset to retry" if drone.crashed else ("PAUSED" if paused else ("ALTITUDE HOLD" if drone.altitude_hold else "MANUAL COLLECTIVE"))
+ hud.visible = not setup.visible
+ hud.text = "%s | %s\n%s\n\nTIME %.3f s    BEST %s\n\n%s\n%s\nEscape: setup / controls / LAN" % [status,"FPV" if fpv else "CHASE",course.state,course.seconds,"%.3f s" % course.best if course.best>0 else "—",session.status,session.leaderboard()]

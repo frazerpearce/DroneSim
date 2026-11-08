@@ -15,5 +15,5 @@ cp README.md GODOT_LICENSE.txt build/windows/
 cp README.md GODOT_LICENSE.txt build/DroneSim.app/Contents/Resources/
 codesign --force --deep --sign - build/DroneSim.app
 codesign --verify --deep --strict build/DroneSim.app
-/usr/bin/ditto -c -k --keepParent build/windows build/DroneSim-0.2.2-Windows.zip
-/usr/bin/ditto -c -k --keepParent build/DroneSim.app build/DroneSim-0.2.2-macOS.zip
+/usr/bin/ditto -c -k --keepParent build/windows build/DroneSim-0.2.3-Windows.zip
+/usr/bin/ditto -c -k --keepParent build/DroneSim.app build/DroneSim-0.2.3-macOS.zip

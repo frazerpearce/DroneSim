@@ -59,6 +59,18 @@ The red front rotors mark the nose. Steering follows the drone's orientation,
 so yawing changes which way “forwards” points. **C** switches between chase and
 onboard FPV views. Chase view is a useful place to start.
 
+## Flight instruments
+
+The HUD uses analogue instruments rather than numerical flight telemetry:
+
+- **Direction:** rotating compass; white arrow shows horizontal travel and blue
+  points towards the next gate (or the finish plinth).
+- **Tilt:** artificial horizon showing pitch and bank against a fixed aircraft reference.
+- **Rise / fall:** upward or downward arrow; a centred dot indicates approximately level flight.
+- **Course lamps:** completed gates turn green; the next gate is blue.
+
+Race times and leaderboard results remain numerical.
+
 ## Default controls
 
 | Key | Action |
@@ -166,7 +178,7 @@ publishes ZIP files to GitHub Releases after its checks pass.
 
 ## Status and credits
 
-Current demonstrator: **0.2.2**. The local automated checks cover flight dynamics,
+Current demonstrator: **0.2.3**. The local automated checks cover flight dynamics,
 takeoff after idling, course progression, bindings and ghost-race state. Windows
 cross-export is not Windows gameplay validation. Live LAN testing needs an
 unrestricted machine; the development sandbox could not open the host UDP socket.

@@ -44,7 +44,7 @@ func _ready() -> void:
  add_child(panel)
  var box := VBoxContainer.new()
  panel.add_child(box)
- label(box,"DRONESIM 0.2.2 — SETUP").add_theme_font_size_override("font_size",28)
+ label(box,"DRONESIM 0.2.3 — SETUP").add_theme_font_size_override("font_size",28)
  label(box,"Menus freeze your drone; opening a menu during a timed run invalidates that attempt.")
  tabs = TabContainer.new()
  tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
