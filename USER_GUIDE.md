@@ -1,7 +1,10 @@
 # DroneSim 0.3.1 — User guide
 
 A keyboard-controlled flight demonstrator for Windows and macOS.
-For download and installation, see [README.md](README.md).
+For download and installation, see [README.md](README.md). This guide covers
+**0.3.1**, the source version on `main`. The currently published **0.2.3** ZIPs
+have a single course and no saved-times table; use their bundled guide instead.
+For ten courses and saved times, run the current source or a local 0.3.1 build.
 
 ## Your first flight
 

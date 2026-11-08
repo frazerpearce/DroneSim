@@ -17,11 +17,13 @@ Developed by **Frazer Pearce** as an experiment in rapid, AI-assisted software c
 
 ## Download and install
 
-**Current development version: 0.3.1** — ten selectable courses and analogue flight instruments.
+**Source on `main`: 0.3.1** — ten courses, analogue flight instruments and saved
+best times by player/course. The [user guide](USER_GUIDE.md) describes this version.
 
-The published downloads below are **0.2.3** (the original single-course release).
-The new 0.3.1 packages are built locally; their upload is pending. To use the new
-courses immediately, run the current source with Godot.
+**Published application release: 0.2.3** — one course, analogue instruments and
+LAN racing. It does **not** include the ten-course selector or saved-times table.
+The 0.3.1 packages have been built locally but are not yet uploaded to Releases.
+To use the features described below, run the current source with Godot.
 
 | Platform | Download |
 | --- | --- |
@@ -32,7 +34,12 @@ Only the latest packaged version is offered in [GitHub Releases](https://github.
 Open **Assets** and select the ZIP for your platform. The source-code ZIP offered
 by GitHub is for developers; it is not the packaged game.
 
-The downloads include a [user guide](USER_GUIDE.md). The source history is retained for development.
+Each download includes the guide for its own release. On Windows it is next to
+`DroneSim.exe`; inside the macOS app it is under `Contents/Resources/` (Finder →
+Show Package Contents). The guides linked in this repository describe **0.3.1**.
+
+The repository is currently private, so downloading or cloning requires GitHub
+access. The downloaded game itself has no account or sign-in requirement.
 
 ### Windows
 
@@ -203,29 +210,86 @@ commercial drone. Ground effect, detailed propeller inflow and battery depletion
 are omitted. The demonstrator illustrates basic control and momentum; proficiency
 here does not establish competence with a real aircraft.
 
-## Run or develop from source
+## Run the current source (0.3.1)
 
-Install **Godot 4.7.2** and open `godot/project.godot`, then run the project from
-the editor. The game uses the compatibility renderer and no external game assets.
+The repository contains **source code**, not a ready-to-run `.exe` or `.app`.
+Cloning it or downloading GitHub's **Source code** ZIP does not install the game.
+Install **Godot 4.7.2**, import/open **`godot/project.godot`**, then press **F5**
+to run the configured main scene. No external
+assets or package-manager dependencies are required.
 
-On macOS or Linux, a command-line Godot installation can also run it:
+To clone the repository:
 
 ```sh
 git clone https://github.com/frazerpearce/DroneSim.git
 cd DroneSim
-GODOT_BIN=/path/to/godot ./run.sh
 ```
 
-On Windows, open the project in Godot or run:
+On macOS, either double-click `Launch DroneSim.command` or run:
+
+```sh
+GODOT_BIN=/absolute/path/to/Godot.app/Contents/MacOS/Godot ./run.sh
+```
+
+`run.sh` uses zsh. It checks `GODOT_BIN`, then a local `.tools/Godot`, a `godot`
+command on PATH, and `/Applications/Godot.app/Contents/MacOS/Godot`.
+The `.tools/` directory is optional and is **not** included in the repository.
+
+On Windows, use the Godot editor or PowerShell from the repository root:
 
 ```powershell
 & 'C:\path\to\Godot.exe' --path .\godot
 ```
 
-See the [user guide](USER_GUIDE.md) for flying and racing, and [development notes](docs/DEVELOPMENT.md) for model parameters, build requirements
-and test commands. `.tools/`, generated Godot caches and `build/` are excluded
-from source control. The release workflow builds both platforms on macOS and
-publishes ZIP files to GitHub Releases after its checks pass.
+On Linux, use Godot directly from the repository root:
+
+```sh
+/path/to/godot --path ./godot
+```
+
+Linux source execution is available through Godot, but no Linux application
+package is supplied or tested here.
+
+## Repository layout and building
+
+| Path in the repository | Purpose |
+| --- | --- |
+| `README.md` | Download status, installation and quick start |
+| `USER_GUIDE.md` | Flying, instruments, courses, controls and saved times |
+| `docs/DEVELOPMENT.md` | Physics parameters, tests and build details |
+| `godot/project.godot` | Project to open in Godot |
+| `godot/main.tscn`, `godot/main.gd` | Main scene, hangar and game loop |
+| `godot/drone.gd` | Drone dynamics and controller |
+| `godot/course_catalog.gd`, `godot/course.gd` | Ten course definitions and timing |
+| `godot/flight_hud.gd`, `godot/setup.gd` | Analogue instruments and Escape panel |
+| `godot/results.gd`, `godot/session.gd`, `godot/transport.gd` | Saved times and LAN racing |
+| `godot/test_*.gd` | Automated checks (directly in `godot/`, not a `tests/` subfolder) |
+| `godot/export_presets.cfg` | Windows and macOS export presets |
+| `run.sh`, `Launch DroneSim.command` | Source launchers for macOS/zsh |
+| `build.sh` | macOS build, checks, signing and packaging |
+| `.github/workflows/release.yml` | Automated build/release workflow |
+| `GODOT_LICENSE.txt` | Godot engine licence |
+
+**Building both application packages requires macOS**, zsh, Godot 4.7.2 and its
+matching macOS/Windows export templates. From the repository root:
+
+```sh
+GODOT_BIN=/absolute/path/to/Godot.app/Contents/MacOS/Godot ./build.sh
+```
+
+This runs the automated checks and creates:
+
+- `build/windows/DroneSim.exe` and bundled guides;
+- `build/DroneSim.app`, with guides in `Contents/Resources/`;
+- `build/DroneSim-0.3.1-Windows.zip` and `build/DroneSim-0.3.1-macOS.zip`.
+
+`build/`, `.tools/` and `godot/.godot/` are generated/local directories and are
+excluded from Git. They will not appear in a fresh clone. See the
+[development notes](docs/DEVELOPMENT.md) for individual test commands.
+
+The release workflow is configured to build and publish application ZIPs, but its
+runs have been cancelled before executing. Its presence does not mean a newer
+release has been uploaded. Only the verified release links above are advertised.
 
 ## Status and credits
 

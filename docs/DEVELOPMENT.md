@@ -5,7 +5,7 @@ Keyboard quadcopter racing in a 40 × 60 × 18 m hangar, for macOS and Windows.
 For installation and flying, see the [README](../README.md) and [user guide](../USER_GUIDE.md).
 Only the latest application packages are published; source history is retained.
 
-## Run
+## Run (from the repository root)
 
 Open `godot/project.godot` in Godot, or set `GODOT_BIN` and run `./run.sh`.
 Standalone packages are in `build/`: unzip the macOS app or the Windows folder.
@@ -123,10 +123,24 @@ only your drone; the LAN session continues.
 
 ## Build and verify
 
+`build.sh` is a **macOS/zsh** script: it uses `codesign` and `/usr/bin/ditto`.
+It needs Godot 4.7.2 and matching Windows x86-64 and universal macOS export
+templates. It is not a Windows or generic Linux build script. Set `GODOT_BIN`
+to an executable absolute path, or install Godot in one of the locations supported
+by `run.sh`. `.tools/` is a local convenience, not a repository dependency.
+
+The following commands are for macOS/zsh, from the repository root:
+
+
 ```sh
 ./build.sh
 ./run.sh --headless --log-file /tmp/dronesim-flight.log --script res://test_flight.gd
 ./run.sh --headless --log-file /tmp/dronesim-features.log --script res://test_features.gd
+./run.sh --headless --script res://test_results.gd
+./run.sh --headless --script res://test_courses.gd
+./run.sh --headless --script res://test_hud.gd
+./run.sh --headless --script res://test_takeoff.gd
+./run.sh --headless --script res://test_dynamics.gd
 # Requires permission to open UDP sockets:
 ./run.sh --headless --log-file /tmp/dronesim-lan.log --script res://test_features.gd -- --lan
 ```
@@ -166,7 +180,7 @@ selector. Run it with `./run.sh --headless --script res://test_courses.gd`.
 
 ## Saved result profiles
 
-`results.gd` stores versioned JSON in `user://times.json`, keyed by a trimmed,
+`godot/results.gd` stores versioned JSON in `user://times.json`, keyed by a trimmed,
 case-insensitive player name and stable course ID. Only positive, finite best
 times are retained. Writes use a temporary file and rename; unreadable or malformed
 originals are preserved. The Escape Best times table lists all locally known
