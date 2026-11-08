@@ -2,6 +2,9 @@
 
 Keyboard quadcopter racing in a 40 × 60 × 18 m hangar, for macOS and Windows.
 
+For installation and flying, see the [README](../README.md) and [user guide](../USER_GUIDE.md).
+Only the latest application packages are published; source history is retained.
+
 ## Run
 
 Open `godot/project.godot` in Godot, or set `GODOT_BIN` and run `./run.sh`.

@@ -17,16 +17,22 @@ Developed by **Frazer Pearce** as an experiment in rapid, AI-assisted software c
 
 ## Download and install
 
-Download the packaged game from [GitHub Releases](https://github.com/frazerpearce/DroneSim/releases/latest).
+**Latest version: 0.2.3** — with analogue direction, tilt and rise/fall instruments.
+
+| Platform | Download |
+| --- | --- |
+| Windows (64-bit Intel/AMD) | [DroneSim-0.2.3-Windows.zip](https://github.com/frazerpearce/DroneSim/releases/download/v0.2.3/DroneSim-0.2.3-Windows.zip) |
+| macOS (Apple Silicon and Intel) | [DroneSim-0.2.3-macOS.zip](https://github.com/frazerpearce/DroneSim/releases/download/v0.2.3/DroneSim-0.2.3-macOS.zip) |
+
+Only the latest packaged version is offered in [GitHub Releases](https://github.com/frazerpearce/DroneSim/releases/latest).
 Open **Assets** and select the ZIP for your platform. The source-code ZIP offered
 by GitHub is for developers; it is not the packaged game.
 
-Packaged downloads appear after the automated release build completes successfully.
-If there is no release yet, you can run the source with Godot as described below.
+The downloads include a [user guide](USER_GUIDE.md). The source history is retained for development.
 
 ### Windows
 
-1. Download `DroneSim-<version>-Windows.zip`.
+1. Download `DroneSim-0.2.3-Windows.zip`.
 2. Right-click the ZIP and choose **Extract All**.
 3. Open the extracted `windows` folder and run **DroneSim.exe**.
 
@@ -36,7 +42,7 @@ warning. Only proceed if you recognise and trust the downloaded file.
 
 ### macOS
 
-1. Download `DroneSim-<version>-macOS.zip` and double-click to extract it.
+1. Download `DroneSim-0.2.3-macOS.zip` and double-click to extract it.
 2. Drag **DroneSim.app** to Applications, or keep it in a folder of your choice.
 3. Open **DroneSim.app**.
 
@@ -171,7 +177,7 @@ On Windows, open the project in Godot or run:
 & 'C:\path\to\Godot.exe' --path .\godot
 ```
 
-See [development notes](docs/DEVELOPMENT.md) for model parameters, build requirements
+See the [user guide](USER_GUIDE.md) for flying and racing, and [development notes](docs/DEVELOPMENT.md) for model parameters, build requirements
 and test commands. `.tools/`, generated Godot caches and `build/` are excluded
 from source control. The release workflow builds both platforms on macOS and
 publishes ZIP files to GitHub Releases after its checks pass.
