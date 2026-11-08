@@ -1,0 +1,69 @@
+name: Build demonstrator downloads
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'godot/**'
+      - 'build.sh'
+      - 'run.sh'
+      - '.github/workflows/release.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: dronesim-release
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read project version
+        shell: bash
+        run: |
+          version=$(sed -n 's/^config\/version="\([^"]*\)"/\1/p' godot/project.godot)
+          test -n "$version"
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+      - name: Install Godot and export templates
+        shell: bash
+        run: |
+          engine_version=4.7.2
+          base="https://github.com/godotengine/godot/releases/download/${engine_version}-stable"
+          curl --fail --location --retry 3 "$base/Godot_v${engine_version}-stable_macos.universal.zip" -o "$RUNNER_TEMP/godot.zip"
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          chmod +x "$RUNNER_TEMP/godot/Godot.app/Contents/MacOS/Godot"
+          echo "GODOT_BIN=$RUNNER_TEMP/godot/Godot.app/Contents/MacOS/Godot" >> "$GITHUB_ENV"
+          curl --fail --location --retry 3 "$base/Godot_v${engine_version}-stable_export_templates.tpz" -o "$RUNNER_TEMP/templates.zip"
+          unzip -q "$RUNNER_TEMP/templates.zip" -d "$RUNNER_TEMP/export"
+          destination="$HOME/Library/Application Support/Godot/export_templates/${engine_version}.stable"
+          mkdir -p "$destination"
+          cp -R "$RUNNER_TEMP/export/templates/." "$destination/"
+      - name: Test and export Windows and macOS
+        run: ./build.sh
+      - name: Retain build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: DroneSim-${{ env.VERSION }}
+          path: build/DroneSim-*.zip
+          if-no-files-found: error
+      - name: Publish versioned downloads
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          tag="v$VERSION"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists; leaving its tag and assets unchanged."
+            exit 0
+          fi
+          cat > "$RUNNER_TEMP/release-notes.md" <<'NOTES'
+          A free keyboard-controlled drone flight demonstrator for Windows and macOS.
+
+          Download the ZIP for your platform below and extract it. On Windows run `windows/DroneSim.exe`; on macOS open `DroneSim.app`.
+
+          The Windows executable is unsigned; the macOS app is ad-hoc signed, not notarised. See the repository README for installation, controls, course timing and LAN play.
+
+          Automated simulation checks run before export. Packaged binaries are not a substitute for interactive platform and live LAN testing.
+          NOTES
+          gh release create "$tag" "build/DroneSim-$VERSION-Windows.zip" "build/DroneSim-$VERSION-macOS.zip" \
+            --target "$GITHUB_SHA" --title "DroneSim $VERSION" --notes-file "$RUNNER_TEMP/release-notes.md"
