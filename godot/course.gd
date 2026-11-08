@@ -4,6 +4,7 @@ var selected := 0
 var POINTS: Array = Catalog.COURSES[0].points
 const START := Vector3(0,0.5,8)
 const FINISH := Vector3(8,0.5,20)
+const FINISH_HALF_WIDTH := 1.15 # drone body centre, not the full footprint
 const SPAWN := START + Vector3(0,0.18,0)
 var best_times := {}
 var gate_width := 5.0
@@ -53,10 +54,29 @@ func rebuild() -> void:
   game.block(geometry,pair[0]-Vector3(0,0.25,0),Vector3(3,0.5,3),pair[1])
   var text := Label3D.new()
   text.text = pair[2]
-  text.position = pair[0]+Vector3(0,0.02,0)
+  text.position = pair[0]+Vector3(0,0.02,-1.34 if pair[2]=="FINISH" else 0)
   text.rotation_degrees.x = -90
-  text.font_size = 100
+  text.font_size = 50 if pair[2]=="FINISH" else 100
   geometry.add_child(text)
+ # The outside edge of this painted square is the timer's centre-position limit.
+ var zone := Node3D.new()
+ zone.name = "LandingZone"
+ zone.position = FINISH
+ geometry.add_child(zone)
+ game.block(zone,Vector3(0,0.004,0),Vector3(2*FINISH_HALF_WIDTH,0.004,2*FINISH_HALF_WIDTH),Color(0.08,0.32,0.24),false)
+ var line := 0.045
+ for offset in [-1,1]:
+  game.block(zone,Vector3(offset*(FINISH_HALF_WIDTH-line/2),0.009,0),Vector3(line,0.004,2*FINISH_HALF_WIDTH),Color(0.7,1,0.8),false)
+  game.block(zone,Vector3(0,0.009,offset*(FINISH_HALF_WIDTH-line/2)),Vector3(2*FINISH_HALF_WIDTH,0.004,line),Color(0.7,1,0.8),false)
+ for x in [-0.25,0.25]:
+  game.block(zone,Vector3(x,0.012,-0.15),Vector3(0.06,0.004,0.6),Color.WHITE,false)
+ game.block(zone,Vector3(0,0.012,-0.15),Vector3(0.5,0.004,0.06),Color.WHITE,false)
+ var caption := Label3D.new()
+ caption.text = "LAND HERE"
+ caption.position = Vector3(0,0.02,0.7)
+ caption.rotation_degrees.x = -90
+ caption.font_size = 36
+ zone.add_child(caption)
  var last := START
  for i in range(POINTS.size()):
   var p: Vector3 = POINTS[i]
@@ -145,7 +165,7 @@ func tick(dt: float, pos: Vector3, velocity: Vector3, crashed: bool, contact: bo
    if crossed(next_gate,previous,pos):
     next_gate += 1
     refresh()
-  elif absf(pos.x-FINISH.x) < 1.15 and absf(pos.z-FINISH.z) < 1.15 and pos.y < FINISH.y+0.26 and contact and velocity.length()<0.5:
+  elif inside_finish_zone(pos) and pos.y < FINISH.y+0.26 and contact and velocity.length()<0.5:
    landed_for += dt
    if landed_for >= 0.5:
     seconds -= landed_for # timestamp initial stable contact, not dwell completion
@@ -154,3 +174,6 @@ func tick(dt: float, pos: Vector3, velocity: Vector3, crashed: bool, contact: bo
     completed.emit(seconds)
   else: landed_for = 0
  previous = pos
+
+func inside_finish_zone(pos: Vector3) -> bool:
+ return absf(pos.x-FINISH.x)<FINISH_HALF_WIDTH and absf(pos.z-FINISH.z)<FINISH_HALF_WIDTH

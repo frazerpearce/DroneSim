@@ -17,7 +17,10 @@ Developed by **Frazer Pearce** as an experiment in rapid, AI-assisted software c
 
 ## Download and install
 
-**Latest release: 0.3.1** — ten selectable courses, analogue flight instruments,
+The current source is **0.3.2**, adding a marked landing zone. The published
+0.3.1 downloads below do not yet include that marker.
+
+**Published release: 0.3.1** — ten selectable courses, analogue flight instruments,
 LAN ghost racing and saved best times by player/course. Both platform downloads
 below include the game and its guides; **Godot is not required to play**.
 
@@ -33,7 +36,8 @@ Each download includes the guide for its own release. On Windows it is next to
 `DroneSim.exe`; inside the macOS app it is under `Contents/Resources/` (Finder →
 Show Package Contents). The guides linked in this repository describe **0.3.1**.
 
-The downloaded game itself has no account or sign-in requirement.
+The repository is currently private, so downloading or cloning requires GitHub
+access. The downloaded game itself has no account or sign-in requirement.
 
 ### Windows
 
@@ -158,6 +162,10 @@ Take off from the **green start plinth**, pass through **every numbered gate of 
 - **Cyan gate:** the gate after that.
 - **Blue dotted pathway:** the suggested route; it can be hidden in setup.
 
+In 0.3.2, the finish plinth has a pale-green outlined **LAND HERE** square. The drone's
+**body centre** must be inside that 2.3 × 2.3 m square; the whole drone need not
+fit within it. Touch down slowly and remain settled for half a second.
+
 Cross each gate through its opening, travelling in the direction of the course.
 The timer starts when you lift off the starting plinth. The finish requires a
 slow, stable landing on the finishing plinth after every gate. A half-second
@@ -281,9 +289,21 @@ This runs the automated checks and creates:
 excluded from Git. They will not appear in a fresh clone. See the
 [development notes](docs/DEVELOPMENT.md) for individual test commands.
 
+Version 0.3.1 is published in GitHub Releases with both platform ZIPs. The release
+workflow is also provided for future builds; published assets are kept separate
+from source control.
+
 ## Status and credits
 
-Current release: **0.3.1**.
+Current release: **0.3.1**. **Version 0.2.3 was tested successfully
+on Windows and over LAN by Frazer Pearce.** This replaces the earlier unverified
+platform/network status for that version. The new multi-course selection and
+host/client course synchronisation have automated coverage where possible, but
+still require interactive testing on Windows and across a live LAN.
+
+The local automated checks cover flight dynamics, takeoff after idling,
+all ten course layouts and completion, key bindings, instruments and ghost-race
+state. Headless checks are not a substitute for interactive testing.
 
 Built with [Godot](https://godotengine.org/). The engine's MIT licence is included
 in [GODOT_LICENSE.txt](GODOT_LICENSE.txt); its third-party component notices are

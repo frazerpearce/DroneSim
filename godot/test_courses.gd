@@ -10,6 +10,10 @@ func run() -> void:
  root.add_child(game)
  game.set_physics_process(false)
  game.drone.freeze=true
+ var zone=game.course.geometry.get_node("LandingZone")
+ var plate=zone.get_child(0).get_child(0)
+ check(is_equal_approx(plate.mesh.size.x,2*game.course.FINISH_HALF_WIDTH) and is_equal_approx(plate.mesh.size.z,2*game.course.FINISH_HALF_WIDTH),"painted landing square matches timer dimensions")
+ check(game.course.inside_finish_zone(game.course.FINISH+Vector3(1.149,0,0)) and not game.course.inside_finish_zone(game.course.FINISH+Vector3(1.151,0,0)),"landing test uses drone centre inside painted boundary")
  check(game.course.Catalog.COURSES.size()==10,"ten selectable courses")
  for index in range(10):
   game.select_course(index,true)

@@ -1,8 +1,9 @@
-# DroneSim 0.3.1 — User guide
+# DroneSim 0.3.2 — User guide
 
 A keyboard-controlled flight demonstrator for Windows and macOS.
 For download and installation, see [README.md](README.md). This guide covers
-**0.3.1**, available as packaged Windows and macOS downloads in
+**0.3.2**, including the new marked landing zone. The currently published 0.3.1
+downloads do not include the marker. Windows and macOS downloads are listed in
 [GitHub Releases](https://github.com/frazerpearce/DroneSim/releases/latest).
 
 ## Your first flight
@@ -90,6 +91,10 @@ Take off from the **green start plinth**, pass through **every numbered gate of 
 - **Green gate:** the next gate to cross.
 - **Cyan gate:** the gate after that.
 - **Blue dotted pathway:** the suggested route; it can be hidden in setup.
+
+The finish plinth has a pale-green outlined **LAND HERE** square. The drone's
+**body centre** must be inside that 2.3 × 2.3 m square; the whole drone need not
+fit within it. Touch down slowly and remain settled for half a second.
 
 Cross each gate through its opening, travelling in the direction of the course.
 The timer starts when you lift off the starting plinth. The finish requires a
