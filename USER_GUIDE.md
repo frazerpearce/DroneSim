@@ -1,8 +1,8 @@
-# DroneSim 0.3.2 — User guide
+# DroneSim 0.3.3 — User guide
 
 A keyboard-controlled flight demonstrator for Windows and macOS.
 For download and installation, see [README.md](README.md). This guide covers
-**0.3.2**, including the new marked landing zone. The currently published 0.3.1
+**0.3.3**, including the marked landing zone, swapped final courses and total-time column. The currently published 0.3.1
 downloads do not include the marker. Windows and macOS downloads are listed in
 [GitHub Releases](https://github.com/frazerpearce/DroneSim/releases/latest).
 
@@ -76,8 +76,8 @@ not ratings established through user testing.
 | Rollercoaster | Challenging | 7 | 4.0 × 3.2 m | Alternating height changes |
 | Precision Run | Challenging | 7 | 2.8 × 2.8 m | Accurate alignment |
 | High Wire | Hard | 8 | 3.0 × 2.8 m | High-level flight and descent |
-| Technical Slalom | Expert | 9 | 2.5 × 2.6 m | Tight slalom with height changes |
 | Master Circuit | Expert | 10 | 2.2 × 2.4 m | Long, narrow, mixed-height circuit |
+| Technical Slalom | Expert | 9 | 2.5 × 2.6 m | Tight slalom with height changes |
 
 In LAN play, **the host selects the course** and clients follow automatically.
 The client selector is disabled while connected. A host course change resets
@@ -169,7 +169,8 @@ The flight model is simplified and is not a substitute for real-world training.
 ## Saved times by player and course
 
 **Escape → Best times** shows a small table with one row per player and ten
-course columns. It retains the fastest completed time in each cell and saves
+course columns plus a Total column. Total is the sum of personal bests and appears
+only after every course has a time. It retains the fastest completed time in each cell and saves
 automatically. Enter a name under **Flight & course**, then press Enter or leave
 the field to load that player's history. Capitalisation and surrounding spaces
 do not create a new player. Changing names invalidates an airborne attempt.

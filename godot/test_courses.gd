@@ -14,6 +14,7 @@ func run() -> void:
  var plate=zone.get_child(0).get_child(0)
  check(is_equal_approx(plate.mesh.size.x,2*game.course.FINISH_HALF_WIDTH) and is_equal_approx(plate.mesh.size.z,2*game.course.FINISH_HALF_WIDTH),"painted landing square matches timer dimensions")
  check(game.course.inside_finish_zone(game.course.FINISH+Vector3(1.149,0,0)) and not game.course.inside_finish_zone(game.course.FINISH+Vector3(1.151,0,0)),"landing test uses drone centre inside painted boundary")
+ check(game.course.Catalog.id_at(8)=="hangar-10-v1" and game.course.Catalog.id_at(9)=="hangar-09-v1","courses nine and ten swapped with stable saved-time identities")
  check(game.course.Catalog.COURSES.size()==10,"ten selectable courses")
  for index in range(10):
   game.select_course(index,true)
@@ -35,8 +36,8 @@ func run() -> void:
  check(game.course.best>0 and game.session.local_best>0,"course-specific best restored")
  game.select_course(9,true)
  var state: Dictionary=game.session.local_state()
- state.gate=10
- check(game.session.valid(state),"LAN accepts ten-gate course progress")
+ state.gate=game.course.POINTS.size()
+ check(game.session.valid(state),"LAN accepts selected course gate count")
  state.gate=11
  check(not game.session.valid(state),"LAN rejects progress beyond selected course length")
  game.setup.show_panel()

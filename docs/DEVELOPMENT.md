@@ -1,4 +1,4 @@
-# DroneSim development notes — 0.3.1
+# DroneSim development notes — 0.3.3
 
 Keyboard quadcopter racing in a 40 × 60 × 18 m hangar, for macOS and Windows.
 
@@ -60,7 +60,7 @@ Times resolve to the 120 Hz physics tick, despite displaying three decimals.
 ## LAN ghost race
 
 Either Mac or Windows can host up to eight pilots. Everyone must use version
-0.3.1 and the same selected course. Open **Setup → LAN race**:
+0.3.3 and the same selected course. Open **Setup → LAN race**:
 
 1. Host selects the UDP port (default **24568**) and clicks **HOST**.
 2. Other pilots enter the host's LAN IP and the same port, then click **JOIN**.
@@ -153,7 +153,7 @@ Additional dynamics checks cover RPM lag, thrust scaling, spin-down, anisotropic
 drag, force/torque allocation, saturation, unassisted angular acceleration and
 motors-off free fall. The optional live ENet check connects a host/client over loopback, exchanges
 states and times, and checks disconnect cleanup. Version 0.2.3 was manually tested on Windows and over LAN by Frazer Pearce,
-who reported both working. The multi-course changes in 0.3.1 have not yet been
+who reported both working. The multi-course changes in 0.3.3 have not yet been
 manually validated across machines. Windows cross-export alone does not
 constitute Windows gameplay testing.
 
@@ -172,7 +172,7 @@ The selection is exposed in Escape → Flight & course. LAN snapshots include th
 host's selected course; clients apply it before rendering other pilots' states.
 Client course changes are disabled while connected. Pilot state validation checks
 the gate count against that pilot's advertised course. Ghosts and leaderboard
-rows are filtered to the active course. All peers require version 0.3.1.
+rows are filtered to the active course. All peers require version 0.3.3.
 
 `test_courses.gd` checks all ten gate lists, aperture direction, finish detection,
 per-course best restoration, course-length packet validation and the Escape
@@ -192,3 +192,9 @@ Scripted scene fixtures set `test_mode` before adding the scene to the tree so
 synthetic completions never read or overwrite real player histories. Persistence
 tests use isolated temporary files and exercise reloads, multiple names/courses,
 best-only updates, profile switching and corrupt-file preservation.
+
+Course display order can change independently of saved results: each catalogue
+entry has an explicit stable ID. Courses 9 and 10 were swapped in 0.3.3 without
+moving old results to a different route. Legacy numeric course preferences are
+translated to their original stable IDs. The Total column sums the ten current
+routes' personal bests only when all ten exist; unrelated saved IDs are ignored.

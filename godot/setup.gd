@@ -48,7 +48,7 @@ func _ready() -> void:
  add_child(panel)
  var box := VBoxContainer.new()
  panel.add_child(box)
- label(box,"DRONESIM 0.3.2 — SETUP").add_theme_font_size_override("font_size",28)
+ label(box,"DRONESIM 0.3.3 — SETUP").add_theme_font_size_override("font_size",28)
  label(box,"Menus freeze your drone; opening a menu during a timed run invalidates that attempt.")
  tabs = TabContainer.new()
  tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -93,9 +93,9 @@ func _ready() -> void:
  button(flight,"Reset drone and course",func(): game.reset_attempt())
  var history := page("Best times")
  label(history,"Best completed time per player and course • saved on this computer")
- label(history,"Names ignore surrounding spaces and letter case. A dash means no completed run.")
+ label(history,"Names ignore surrounding spaces and letter case. Total requires a time on every course. A dash means incomplete.")
  times_table=Tree.new()
- times_table.columns=11
+ times_table.columns=12
  times_table.hide_root=true
  times_table.column_titles_visible=true
  times_table.set_column_title(0,"Player")
@@ -103,6 +103,8 @@ func _ready() -> void:
  for i in range(10):
   times_table.set_column_title(i+1,"%02d" % (i+1))
   times_table.set_column_custom_minimum_width(i+1,86)
+ times_table.set_column_title(11,"Total")
+ times_table.set_column_custom_minimum_width(11,100)
  times_table.custom_minimum_size=Vector2(0,260)
  times_table.size_flags_horizontal=Control.SIZE_EXPAND_FILL
  history.add_child(times_table)
@@ -231,7 +233,10 @@ func refresh_times() -> void:
   var item := times_table.create_item(root)
   item.set_text(0,profile.name)
   for i in range(10):
-   var seconds: float = game.session.results.best(profile.name,"hangar-%02d-v1" % (i+1))
+   var seconds: float = game.session.results.best(profile.name,game.course.Catalog.id_at(i))
    item.set_text(i+1,"%.3f s" % seconds if seconds>0 else "—")
    item.set_tooltip_text(i+1,game.course.Catalog.COURSES[i].name)
+  var total: float = game.session.results.total(profile.name)
+  item.set_text(11,"%.3f s" % total if total>0 else "—")
+  item.set_tooltip_text(11,"Sum of personal bests; requires a time on all ten courses")
  times_status.text=game.session.results.error

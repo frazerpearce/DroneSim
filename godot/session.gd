@@ -1,6 +1,6 @@
 extends Node
 const Transport = preload("res://transport.gd")
-const PROTOCOL := "DroneSim-0.3.2-courses-v1"
+const PROTOCOL := "DroneSim-0.3.3-courses-v1"
 var net = Transport.new()
 var game: Node3D
 var status := "Single player"
@@ -125,7 +125,7 @@ func update_ghosts(dt: float) -> void:
  for id in states:
   if id == own or not states[id] is Dictionary or not valid(states[id]) or states[id].course!=game.course.selected: continue
   var data: Dictionary = states[id]
-  if data.best>0 and results.record(data.name,"hangar-%02d-v1" % (int(data.course)+1),data.best): results_changed.emit()
+  if data.best>0 and results.record(data.name,game.course.Catalog.id_at(int(data.course)),data.best): results_changed.emit()
   if not ghosts.has(id):
    var ghost := Node3D.new() # visual only: no bodies, areas or collision shapes
    game.add_child(ghost)
@@ -208,7 +208,7 @@ func restore_player_times() -> void:
  course_bests.clear()
  game.course.best_times.clear()
  for i in range(game.course.Catalog.COURSES.size()):
-  var time: float = results.best(player_name,"hangar-%02d-v1" % (i+1))
+  var time: float = results.best(player_name,game.course.Catalog.id_at(i))
   course_bests[i]=time
   game.course.best_times[i]=time
  local_best=results.best(player_name,game.course.course_id())

@@ -119,6 +119,7 @@ func save_settings() -> void:
  if test_mode: return
  var config := ConfigFile.new()
  config.set_value("flight","course",course.selected)
+ config.set_value("flight","course_id",course.course_id())
  config.set_value("flight","name",session.player_name)
  config.set_value("flight","hold",drone.altitude_hold)
  config.set_value("flight","path",course.route.visible)
@@ -131,7 +132,12 @@ func load_settings() -> void:
  var config := ConfigFile.new()
  if config.load("user://settings.cfg")!=OK: return
  var index: Variant = config.get_value("flight","course",0)
- if index is int: course.select(index)
+ var id: Variant = config.get_value("flight","course_id","")
+ if id is String and not id.is_empty():
+  course.select(course.Catalog.index_of(id))
+ elif index is int:
+  # Older settings stored display order; translate that order to its original ID.
+  course.select(course.Catalog.index_of("hangar-%02d-v1" % (clampi(index,0,9)+1)))
  session.set_player_name(str(config.get_value("flight","name","Pilot")).left(24))
  session.restore_player_times()
  drone.altitude_hold = config.get_value("flight","hold",true)==true

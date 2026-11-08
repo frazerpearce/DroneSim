@@ -67,3 +67,11 @@ func save() -> bool:
   error="Could not save times: "+error_string(result)
   return false
  return true
+
+func total(name: String) -> float:
+ var sum := 0.0
+ for course in preload("res://course_catalog.gd").COURSES:
+  var seconds := best(name,course.id)
+  if seconds<=0: return 0.0
+  sum+=seconds
+ return sum

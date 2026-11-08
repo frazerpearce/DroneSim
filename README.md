@@ -17,7 +17,8 @@ Developed by **Frazer Pearce** as an experiment in rapid, AI-assisted software c
 
 ## Download and install
 
-The current source is **0.3.2**, adding a marked landing zone. The published
+The current source is **0.3.3**, adding a marked landing zone, reordered final
+courses and a ten-course total in the saved-times chart. The published
 0.3.1 downloads below do not yet include that marker.
 
 **Published release: 0.3.1** — ten selectable courses, analogue flight instruments,
@@ -88,7 +89,7 @@ Race times and leaderboard results remain numerical.
 
 ## Saved best times
 
-Open **Escape → Best times** for a compact player-by-course table. Each cell is
+Open **Escape → Best times** for a compact player-by-course table. The Total column sums a player's personal bests only when all ten courses have times; otherwise it shows a dash. Each course cell is
 the fastest completed time for that player and course; a dash means no result.
 Course numbers are explained below the table, with full names in cell tooltips.
 
@@ -146,8 +147,8 @@ not ratings established through user testing.
 | Rollercoaster | Challenging | 7 | 4.0 × 3.2 m | Alternating height changes |
 | Precision Run | Challenging | 7 | 2.8 × 2.8 m | Accurate alignment |
 | High Wire | Hard | 8 | 3.0 × 2.8 m | High-level flight and descent |
-| Technical Slalom | Expert | 9 | 2.5 × 2.6 m | Tight slalom with height changes |
 | Master Circuit | Expert | 10 | 2.2 × 2.4 m | Long, narrow, mixed-height circuit |
+| Technical Slalom | Expert | 9 | 2.5 × 2.6 m | Tight slalom with height changes |
 
 In LAN play, **the host selects the course** and clients follow automatically.
 The client selector is disabled while connected. A host course change resets
@@ -212,7 +213,7 @@ commercial drone. Ground effect, detailed propeller inflow and battery depletion
 are omitted. The demonstrator illustrates basic control and momentum; proficiency
 here does not establish competence with a real aircraft.
 
-## Run the current source (0.3.1)
+## Run the current source (0.3.3)
 
 The repository contains **source code**, not a ready-to-run `.exe` or `.app`.
 Cloning it or downloading GitHub's **Source code** ZIP does not install the game.
@@ -283,7 +284,7 @@ This runs the automated checks and creates:
 
 - `build/windows/DroneSim.exe` and bundled guides;
 - `build/DroneSim.app`, with guides in `Contents/Resources/`;
-- `build/DroneSim-0.3.1-Windows.zip` and `build/DroneSim-0.3.1-macOS.zip`.
+- `build/DroneSim-0.3.3-Windows.zip` and `build/DroneSim-0.3.3-macOS.zip`.
 
 `build/`, `.tools/` and `godot/.godot/` are generated/local directories and are
 excluded from Git. They will not appear in a fresh clone. See the

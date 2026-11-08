@@ -11,7 +11,7 @@ var gate_width := 5.0
 var gate_height := 4.0
 var geometry: Node3D
 func title() -> String: return Catalog.COURSES[selected].name
-func course_id() -> String: return "hangar-%02d-v1" % (selected+1)
+func course_id() -> String: return Catalog.id_at(selected)
 var game: Node3D
 var next_gate := 0
 var state := "READY"
