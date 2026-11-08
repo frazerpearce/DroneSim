@@ -33,8 +33,7 @@ Each download includes the guide for its own release. On Windows it is next to
 `DroneSim.exe`; inside the macOS app it is under `Contents/Resources/` (Finder →
 Show Package Contents). The guides linked in this repository describe **0.3.1**.
 
-The repository is currently private, so downloading or cloning requires GitHub
-access. The downloaded game itself has no account or sign-in requirement.
+The downloaded game itself has no account or sign-in requirement.
 
 ### Windows
 
@@ -282,21 +281,9 @@ This runs the automated checks and creates:
 excluded from Git. They will not appear in a fresh clone. See the
 [development notes](docs/DEVELOPMENT.md) for individual test commands.
 
-Version 0.3.1 is published in GitHub Releases with both platform ZIPs. The release
-workflow is also provided for future builds; published assets are kept separate
-from source control.
-
 ## Status and credits
 
-Current release: **0.3.1**. **Version 0.2.3 was tested successfully
-on Windows and over LAN by Frazer Pearce.** This replaces the earlier unverified
-platform/network status for that version. The new multi-course selection and
-host/client course synchronisation have automated coverage where possible, but
-still require interactive testing on Windows and across a live LAN.
-
-The local automated checks cover flight dynamics, takeoff after idling,
-all ten course layouts and completion, key bindings, instruments and ghost-race
-state. Headless checks are not a substitute for interactive testing.
+Current release: **0.3.1**.
 
 Built with [Godot](https://godotengine.org/). The engine's MIT licence is included
 in [GODOT_LICENSE.txt](GODOT_LICENSE.txt); its third-party component notices are
