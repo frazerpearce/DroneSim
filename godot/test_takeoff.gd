@@ -3,6 +3,7 @@ func _initialize() -> void: call_deferred("run")
 func run() -> void:
  var game = load("res://main.tscn").instantiate()
  root.add_child(game)
+ game.select_course(0,true)
  game.controls.restore_defaults()
  for i in range(240): await physics_frame
  var idle_height: float = game.drone.position.y

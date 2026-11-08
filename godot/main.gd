@@ -116,6 +116,7 @@ func _ready() -> void:
 
 func save_settings() -> void:
  var config := ConfigFile.new()
+ config.set_value("flight","course",course.selected)
  config.set_value("flight","name",session.player_name)
  config.set_value("flight","hold",drone.altitude_hold)
  config.set_value("flight","path",course.route.visible)
@@ -126,11 +127,21 @@ func save_settings() -> void:
 func load_settings() -> void:
  var config := ConfigFile.new()
  if config.load("user://settings.cfg")!=OK: return
+ var index: Variant = config.get_value("flight","course",0)
+ if index is int: course.select(index)
  session.player_name = str(config.get_value("flight","name","Pilot")).left(24)
  drone.altitude_hold = config.get_value("flight","hold",true)==true
  course.route.visible = config.get_value("flight","path",true)==true
  var fov: Variant = config.get_value("flight","fov",78.0)
  if (fov is int or fov is float) and is_finite(float(fov)): camera.fov=clampf(float(fov),50,110)
+
+func select_course(index: int, from_host := false) -> void:
+ if session.net.peer != null and not session.net.is_host and not from_host: return
+ course.select(index)
+ session.course_changed()
+ reset_attempt()
+ if setup: setup.refresh_course()
+ if not from_host: save_settings()
 
 func reset_attempt() -> void:
  drone.reset_drone()
@@ -199,4 +210,4 @@ func _process(dt: float) -> void:
   camera.look_at(drone.position+Vector3(0,0.15,0))
  var status := "CRASH — reset to retry" if drone.crashed else ("PAUSED" if paused else ("ALTITUDE HOLD" if drone.altitude_hold else "MANUAL COLLECTIVE"))
  hud.visible = not setup.visible
- hud.text = "%s | %s\n%s\n\nTIME %.3f s    BEST %s\n\n%s\n%s\nEscape: setup / controls / LAN" % [status,"FPV" if fpv else "CHASE",course.state,course.seconds,"%.3f s" % course.best if course.best>0 else "—",session.status,session.leaderboard()]
+ hud.text = "%s | %s\n%s\n\nTIME %.3f s    BEST %s\n\n%s\n%s\nEscape: setup / controls / LAN" % [status,"FPV" if fpv else "CHASE",course.title()+" — "+course.state,course.seconds,"%.3f s" % course.best if course.best>0 else "—",session.status,session.leaderboard()]

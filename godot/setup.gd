@@ -9,6 +9,8 @@ var network_status: Label
 var name_field: LineEdit
 var address: LineEdit
 var port: SpinBox
+var course_picker: OptionButton
+var course_info: Label
 var previous_pause := false
 
 func label(parent: Node, text: String) -> Label:
@@ -44,12 +46,21 @@ func _ready() -> void:
  add_child(panel)
  var box := VBoxContainer.new()
  panel.add_child(box)
- label(box,"DRONESIM 0.2.3 — SETUP").add_theme_font_size_override("font_size",28)
+ label(box,"DRONESIM 0.3.0 — SETUP").add_theme_font_size_override("font_size",28)
  label(box,"Menus freeze your drone; opening a menu during a timed run invalidates that attempt.")
  tabs = TabContainer.new()
  tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
  box.add_child(tabs)
  var flight := page("Flight & course")
+ label(flight,"Course (changing it resets your current attempt)")
+ course_picker = OptionButton.new()
+ for i in range(game.course.Catalog.COURSES.size()):
+  var spec: Dictionary = game.course.Catalog.COURSES[i]
+  course_picker.add_item("%02d — %s (%s)" % [i+1,spec.name,spec.difficulty])
+ flight.add_child(course_picker)
+ course_info = label(flight,"")
+ course_picker.item_selected.connect(func(index): game.select_course(index))
+ refresh_course()
  label(flight,"Pilot name (shown to LAN competitors)")
  name_field = LineEdit.new()
  name_field.max_length = 24
@@ -74,7 +85,7 @@ func _ready() -> void:
  fov.value = game.camera.fov
  fov.value_changed.connect(func(value): game.camera.fov=value; game.save_settings())
  flight.add_child(fov)
- label(flight,"Course 01: lift off the green plinth, pass all six gates in order,\nthen land on the purple plinth. Green = next; cyan = following gate.\nDotted blue marks the suggested route. Cross gates in the indicated direction.\nTimer starts on takeoff and stops at stable landing contact (0.5 s confirmation).\nFastest valid completed time wins. Reset begins another attempt.\nRemote drones are translucent ghosts: competitors cannot collide.\nLAN times are self-reported; this is a friendly race, not an anti-cheat system.")
+ label(flight,"Lift off the green plinth, pass every gate of the selected course in order,\nthen land on the purple plinth. Green = next; cyan = following gate.\nDotted blue marks the suggested route. Cross gates in the indicated direction.\nTimer starts on takeoff and stops at stable landing contact (0.5 s confirmation).\nFastest valid completed time wins. Reset begins another attempt.\nRemote drones are translucent ghosts: competitors cannot collide.\nLAN times are self-reported; this is a friendly race, not an anti-cheat system.")
  button(flight,"Reset drone and course",func(): game.reset_attempt())
  var lan := page("LAN race")
  label(lan,"Mac and Windows • up to 8 pilots • same version on every machine")
@@ -165,4 +176,13 @@ func _input(event: InputEvent) -> void:
  else: notice.text=game.controls.error
  get_viewport().set_input_as_handled()
 func _process(_dt: float) -> void:
- if visible: network_status.text=game.session.status+"\n\n"+game.session.leaderboard()
+ if visible:
+  refresh_course()
+  network_status.text=game.session.status+"\n\n"+game.session.leaderboard()
+
+func refresh_course() -> void:
+ if not course_picker: return
+ course_picker.select(game.course.selected)
+ var spec: Dictionary = game.course.Catalog.COURSES[game.course.selected]
+ course_info.text = "%s • %d gates • %.1f × %.1f m openings\n%s\nIn LAN play the host selects the course for everyone." % [spec.difficulty,spec.points.size(),spec.width,spec.height,spec.hint]
+ course_picker.disabled = game.session.net.peer != null and not game.session.net.is_host

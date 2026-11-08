@@ -1,9 +1,16 @@
 extends Node3D
-const POINTS := [Vector3(0,3,0),Vector3(-7,4,-10),Vector3(0,5,-20),Vector3(9,4,-10),Vector3(10,3,2),Vector3(8,2.5,12)]
+const Catalog = preload("res://course_catalog.gd")
+var selected := 0
+var POINTS: Array = Catalog.COURSES[0].points
 const START := Vector3(0,0.5,8)
 const FINISH := Vector3(8,0.5,20)
 const SPAWN := START + Vector3(0,0.18,0)
-const ID := "hangar-01-v1"
+var best_times := {}
+var gate_width := 5.0
+var gate_height := 4.0
+var geometry: Node3D
+func title() -> String: return Catalog.COURSES[selected].name
+func course_id() -> String: return "hangar-%02d-v1" % (selected+1)
 var game: Node3D
 var next_gate := 0
 var state := "READY"
@@ -19,14 +26,37 @@ var route: Node3D
 signal completed(time: float)
 
 func _ready() -> void:
+ rebuild()
+
+func select(index: int) -> void:
+ best_times[selected] = best
+ selected = clampi(index,0,Catalog.COURSES.size()-1)
+ var spec: Dictionary = Catalog.COURSES[selected]
+ POINTS = spec.points
+ gate_width = spec.width
+ gate_height = spec.height
+ best = best_times.get(selected,0.0)
+ rebuild()
+ reset_run()
+
+func rebuild() -> void:
+ var show_route := route.visible if is_instance_valid(route) else true
+ if is_instance_valid(geometry):
+  remove_child(geometry)
+  geometry.queue_free()
+ frames.clear()
+ labels.clear()
+ normals.clear()
+ geometry = Node3D.new()
+ add_child(geometry)
  for pair in [[START,Color(0.1,0.7,0.5),"START"],[FINISH,Color(0.5,0.3,0.9),"FINISH"]]:
-  game.block(self,pair[0]-Vector3(0,0.25,0),Vector3(3,0.5,3),pair[1])
+  game.block(geometry,pair[0]-Vector3(0,0.25,0),Vector3(3,0.5,3),pair[1])
   var text := Label3D.new()
   text.text = pair[2]
   text.position = pair[0]+Vector3(0,0.02,0)
   text.rotation_degrees.x = -90
   text.font_size = 100
-  add_child(text)
+  geometry.add_child(text)
  var last := START
  for i in range(POINTS.size()):
   var p: Vector3 = POINTS[i]
@@ -34,23 +64,24 @@ func _ready() -> void:
   normal = normal.normalized()
   normals.append(normal)
   var frame := Node3D.new()
-  add_child(frame)
+  geometry.add_child(frame)
   frame.position = p
   frame.rotation.y = atan2(normal.x,normal.z)
   frames.append(frame)
-  for x in [-2.2,2.2]:
-   game.block(frame,Vector3(x,0,0),Vector3(0.22,3.4,0.25),Color.ORANGE)
-  for y in [-1.7,1.7]:
-   game.block(frame,Vector3(0,y,0),Vector3(4.6,0.22,0.25),Color.ORANGE)
+  for x in [-gate_width/2-0.11,gate_width/2+0.11]:
+   game.block(frame,Vector3(x,0,0),Vector3(0.22,gate_height+0.44,0.25),Color.ORANGE)
+  for y in [-gate_height/2-0.11,gate_height/2+0.11]:
+   game.block(frame,Vector3(0,y,0),Vector3(gate_width+0.44,0.22,0.25),Color.ORANGE)
   var label := Label3D.new()
-  label.position = Vector3(0,2.2,0)
+  label.position = Vector3(0,gate_height/2+0.6,0)
   label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
   label.font_size = 64
   frame.add_child(label)
   labels.append(label)
   last = p
  route = Node3D.new()
- add_child(route)
+ geometry.add_child(route)
+ route.visible = show_route
  var points: Array = [START+Vector3(0,2.5,0)]
  points.append_array(POINTS)
  points.append(FINISH+Vector3(0,1,0))
@@ -99,7 +130,7 @@ func crossed(index: int, a: Vector3, b: Vector3) -> bool:
  if da >= 0 or db < 0: return false
  var hit := a.lerp(b,-da/(db-da))-centre
  var right := Vector3(normal.z,0,-normal.x)
- return absf(hit.dot(right)) <= 1.78 and absf(hit.y) <= 1.28
+ return absf(hit.dot(right)) <= gate_width/2-0.42 and absf(hit.y) <= gate_height/2-0.16
 
 func tick(dt: float, pos: Vector3, velocity: Vector3, crashed: bool, contact: bool) -> void:
  if state == "READY" and contact and pos.distance_to(SPAWN)<0.4: armed = true

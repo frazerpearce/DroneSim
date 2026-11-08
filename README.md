@@ -17,7 +17,11 @@ Developed by **Frazer Pearce** as an experiment in rapid, AI-assisted software c
 
 ## Download and install
 
-**Latest version: 0.2.3** — with analogue direction, tilt and rise/fall instruments.
+**Current development version: 0.3.0** — ten selectable courses and analogue flight instruments.
+
+The published downloads below are **0.2.3** (the original single-course release).
+The new 0.3.0 packages are built locally; their upload is pending. To use the new
+courses immediately, run the current source with Godot.
 
 | Platform | Download |
 | --- | --- |
@@ -103,10 +107,35 @@ Click a binding slot, then press the desired input. Backspace/Delete clears it;
 Escape cancels assignment. Duplicate bindings are rejected. Escape always remains
 available to open/close setup. Preferences save locally between runs.
 
+## Choose a course
+
+Open **Escape → Flight & course** and select a course from the dropdown.
+Changing course resets the drone to the starting plinth and clears the current
+attempt. Each course retains its own best time during the session. Your course
+choice is remembered for the next launch. Difficulty labels are design targets,
+not ratings established through user testing.
+
+| Course | Difficulty | Gates | Clear opening | Focus |
+| --- | --- | --- | --- | --- |
+| First Flight | Beginner | 6 | 5.0 × 4.0 m | Level flight, wide openings |
+| Gentle Slalom | Easy | 6 | 4.8 × 3.8 m | Side-to-side control |
+| Step Up | Easy | 6 | 4.6 × 3.6 m | Progressive climbs and descent |
+| Hangar Circuit | Moderate | 6 | 4.4 × 3.4 m | Original circuit |
+| Switchbacks | Moderate | 7 | 4.2 × 3.4 m | Braking and reversals |
+| Rollercoaster | Challenging | 7 | 4.0 × 3.2 m | Alternating height changes |
+| Precision Run | Challenging | 7 | 2.8 × 2.8 m | Accurate alignment |
+| High Wire | Hard | 8 | 3.0 × 2.8 m | High-level flight and descent |
+| Technical Slalom | Expert | 9 | 2.5 × 2.6 m | Tight slalom with height changes |
+| Master Circuit | Expert | 10 | 2.2 × 2.4 m | Long, narrow, mixed-height circuit |
+
+In LAN play, **the host selects the course** and clients follow automatically.
+The client selector is disabled while connected. A host course change resets
+every pilot's attempt. Only times for the same course appear together on the
+leaderboard; results are not compared across different courses.
+
 ## Fly the course
 
-Take off from the **green start plinth**, pass through all **six numbered gates
-in order**, then land on the **purple finish plinth**.
+Take off from the **green start plinth**, pass through **every numbered gate of the selected course in order**, then land on the **purple finish plinth**.
 
 - **Green gate:** the next gate to cross.
 - **Cyan gate:** the gate after that.
@@ -114,7 +143,7 @@ in order**, then land on the **purple finish plinth**.
 
 Cross each gate through its opening, travelling in the direction of the course.
 The timer starts when you lift off the starting plinth. The finish requires a
-slow, stable landing on the finishing plinth after all six gates. A half-second
+slow, stable landing on the finishing plinth after every gate. A half-second
 of stable contact confirms the landing; the recorded time is taken from the
 start of that contact.
 
@@ -184,10 +213,15 @@ publishes ZIP files to GitHub Releases after its checks pass.
 
 ## Status and credits
 
-Current demonstrator: **0.2.3**. The local automated checks cover flight dynamics,
-takeoff after idling, course progression, bindings and ghost-race state. Windows
-cross-export is not Windows gameplay validation. Live LAN testing needs an
-unrestricted machine; the development sandbox could not open the host UDP socket.
+Current development version: **0.3.0**. **Version 0.2.3 was tested successfully
+on Windows and over LAN by Frazer Pearce.** This replaces the earlier unverified
+platform/network status for that version. The new multi-course selection and
+host/client course synchronisation have automated coverage where possible, but
+still require interactive testing on Windows and across a live LAN.
+
+The local automated checks cover flight dynamics, takeoff after idling,
+all ten course layouts and completion, key bindings, instruments and ghost-race
+state. Headless checks are not a substitute for interactive testing.
 
 Built with [Godot](https://godotengine.org/). The engine's MIT licence is included
 in [GODOT_LICENSE.txt](GODOT_LICENSE.txt); its third-party component notices are

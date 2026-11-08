@@ -1,4 +1,4 @@
-# DroneSim development notes — 0.2.3
+# DroneSim development notes — 0.3.0
 
 Keyboard quadcopter racing in a 40 × 60 × 18 m hangar, for macOS and Windows.
 
@@ -44,13 +44,13 @@ nominal hover thrust and requires managing height yourself. Red rotors mark the 
 
 ## Course and timing
 
-Press Up to arm the motors and take off from the green starting plinth. Cross the six numbered rectangular gates
+Press Up to arm the motors and take off from the green starting plinth. Cross every numbered rectangular gate in the selected course
 in order, following the dotted blue suggested route, then land on the purple
 finishing plinth. Green marks the next gate; cyan marks the one after it. Gates
 must be crossed forwards through the clear aperture, allowing for the drone's
 size. The timer starts when the drone leaves contact with the starting plinth.
 
-The finish requires all six gates, contact within the finish plinth, speed below
+The finish requires all gates of the selected course, contact within the finish plinth, speed below
 0.5 m/s and 0.5 seconds of stable landing. The recorded time is backdated to the
 start of that stable contact. Crashing, pausing, opening setup or losing focus
 invalidates an airborne attempt. Reset to retry. Reset retains your best time;
@@ -60,7 +60,7 @@ Times resolve to the 120 Hz physics tick, despite displaying three decimals.
 ## LAN ghost race
 
 Either Mac or Windows can host up to eight pilots. Everyone must use version
-0.2.3 and course 01. Open **Setup → LAN race**:
+0.3.0 and the same selected course. Open **Setup → LAN race**:
 
 1. Host selects the UDP port (default **24568**) and clicks **HOST**.
 2. Other pilots enter the host's LAN IP and the same port, then click **JOIN**.
@@ -138,9 +138,28 @@ settings panel behaviour, ghost collision absence and leaderboard data validatio
 Additional dynamics checks cover RPM lag, thrust scaling, spin-down, anisotropic
 drag, force/torque allocation, saturation, unassisted angular acceleration and
 motors-off free fall. The optional live ENet check connects a host/client over loopback, exchanges
-states and times, and checks disconnect cleanup. It must pass on an unrestricted
-machine before calling LAN networking validated. Windows cross-export does not
-constitute physical Windows gameplay testing.
+states and times, and checks disconnect cleanup. Version 0.2.3 was manually tested on Windows and over LAN by Frazer Pearce,
+who reported both working. The multi-course changes in 0.3.0 have not yet been
+manually validated across machines. Windows cross-export alone does not
+constitute Windows gameplay testing.
 
 Godot's MIT licence is in `GODOT_LICENSE.txt`. Godot third-party component
 licences are available at https://godotengine.org/license/.
+
+## Course architecture
+
+`godot/course_catalog.gd` defines the ten named courses, difficulty hints,
+clear gate apertures and waypoints. `course.gd` rebuilds gate collision geometry,
+labels and the suggested route when selection changes. The aperture test includes
+a conservative drone footprint margin. Timers, gate progress and spawn state
+reset on a change; best times are held per course during the session.
+
+The selection is exposed in Escape → Flight & course. LAN snapshots include the
+host's selected course; clients apply it before rendering other pilots' states.
+Client course changes are disabled while connected. Pilot state validation checks
+the gate count against that pilot's advertised course. Ghosts and leaderboard
+rows are filtered to the active course. All peers require version 0.3.0.
+
+`test_courses.gd` checks all ten gate lists, aperture direction, finish detection,
+per-course best restoration, course-length packet validation and the Escape
+selector. Run it with `./run.sh --headless --script res://test_courses.gd`.

@@ -1,4 +1,4 @@
-# DroneSim 0.2.3 — User guide
+# DroneSim 0.3.0 — User guide
 
 A keyboard-controlled flight demonstrator for Windows and macOS.
 For download and installation, see [README.md](README.md).
@@ -55,10 +55,35 @@ Click a binding slot, then press the desired input. Backspace/Delete clears it;
 Escape cancels assignment. Duplicate bindings are rejected. Escape always remains
 available to open/close setup. Preferences save locally between runs.
 
+## Choose a course
+
+Open **Escape → Flight & course** and select a course from the dropdown.
+Changing course resets the drone to the starting plinth and clears the current
+attempt. Each course retains its own best time during the session. Your course
+choice is remembered for the next launch. Difficulty labels are design targets,
+not ratings established through user testing.
+
+| Course | Difficulty | Gates | Clear opening | Focus |
+| --- | --- | --- | --- | --- |
+| First Flight | Beginner | 6 | 5.0 × 4.0 m | Level flight, wide openings |
+| Gentle Slalom | Easy | 6 | 4.8 × 3.8 m | Side-to-side control |
+| Step Up | Easy | 6 | 4.6 × 3.6 m | Progressive climbs and descent |
+| Hangar Circuit | Moderate | 6 | 4.4 × 3.4 m | Original circuit |
+| Switchbacks | Moderate | 7 | 4.2 × 3.4 m | Braking and reversals |
+| Rollercoaster | Challenging | 7 | 4.0 × 3.2 m | Alternating height changes |
+| Precision Run | Challenging | 7 | 2.8 × 2.8 m | Accurate alignment |
+| High Wire | Hard | 8 | 3.0 × 2.8 m | High-level flight and descent |
+| Technical Slalom | Expert | 9 | 2.5 × 2.6 m | Tight slalom with height changes |
+| Master Circuit | Expert | 10 | 2.2 × 2.4 m | Long, narrow, mixed-height circuit |
+
+In LAN play, **the host selects the course** and clients follow automatically.
+The client selector is disabled while connected. A host course change resets
+every pilot's attempt. Only times for the same course appear together on the
+leaderboard; results are not compared across different courses.
+
 ## Fly the course
 
-Take off from the **green start plinth**, pass through all **six numbered gates
-in order**, then land on the **purple finish plinth**.
+Take off from the **green start plinth**, pass through **every numbered gate of the selected course in order**, then land on the **purple finish plinth**.
 
 - **Green gate:** the next gate to cross.
 - **Cyan gate:** the gate after that.
@@ -66,7 +91,7 @@ in order**, then land on the **purple finish plinth**.
 
 Cross each gate through its opening, travelling in the direction of the course.
 The timer starts when you lift off the starting plinth. The finish requires a
-slow, stable landing on the finishing plinth after all six gates. A half-second
+slow, stable landing on the finishing plinth after every gate. A half-second
 of stable contact confirms the landing; the recorded time is taken from the
 start of that contact.
 

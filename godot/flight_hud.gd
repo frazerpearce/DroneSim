@@ -57,7 +57,7 @@ func _draw() -> void:
   var colour := Color(0.28,0.33,0.38)
   if i<game.course.next_gate: colour=Color(0.3,1,0.4)
   elif i==game.course.next_gate: colour=CYAN
-  draw_circle(Vector2(screen.x/2+(i-2.5)*22,28),6,colour,true,-1,true)
+  draw_circle(Vector2(screen.x/2+(i-(game.course.POINTS.size()-1)/2.0)*22,28),6,colour,true,-1,true)
 
 func compass(c: Vector2, heading: float) -> void:
  panel(c,"DIRECTION")

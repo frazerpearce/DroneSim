@@ -7,6 +7,7 @@ func _initialize() -> void: call_deferred("run")
 func run() -> void:
  var game = load("res://main.tscn").instantiate()
  root.add_child(game)
+ game.select_course(0,true)
  game.set_physics_process(false)
  game.drone.freeze = true
  var c = game.course

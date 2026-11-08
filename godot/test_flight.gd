@@ -10,6 +10,7 @@ func _initialize() -> void:
 func run() -> void:
  var scene = load("res://main.tscn").instantiate()
  root.add_child(scene)
+ scene.select_course(0,true)
  scene.set_physics_process(false)
  var d = scene.drone
  d.motors_armed = true
