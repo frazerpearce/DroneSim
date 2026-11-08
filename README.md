@@ -17,18 +17,14 @@ Developed by **Frazer Pearce** as an experiment in rapid, AI-assisted software c
 
 ## Download and install
 
-**Source on `main`: 0.3.1** — ten courses, analogue flight instruments and saved
-best times by player/course. The [user guide](USER_GUIDE.md) describes this version.
-
-**Published application release: 0.2.3** — one course, analogue instruments and
-LAN racing. It does **not** include the ten-course selector or saved-times table.
-The 0.3.1 packages have been built locally but are not yet uploaded to Releases.
-To use the features described below, run the current source with Godot.
+**Latest release: 0.3.1** — ten selectable courses, analogue flight instruments,
+LAN ghost racing and saved best times by player/course. Both platform downloads
+below include the game and its guides; **Godot is not required to play**.
 
 | Platform | Download |
 | --- | --- |
-| Windows (64-bit Intel/AMD) | [DroneSim-0.2.3-Windows.zip](https://github.com/frazerpearce/DroneSim/releases/download/v0.2.3/DroneSim-0.2.3-Windows.zip) |
-| macOS (Apple Silicon and Intel) | [DroneSim-0.2.3-macOS.zip](https://github.com/frazerpearce/DroneSim/releases/download/v0.2.3/DroneSim-0.2.3-macOS.zip) |
+| Windows (64-bit Intel/AMD) | [DroneSim-0.3.1-Windows.zip](https://github.com/frazerpearce/DroneSim/releases/download/v0.3.1/DroneSim-0.3.1-Windows.zip) |
+| macOS (Apple Silicon and Intel) | [DroneSim-0.3.1-macOS.zip](https://github.com/frazerpearce/DroneSim/releases/download/v0.3.1/DroneSim-0.3.1-macOS.zip) |
 
 Only the latest packaged version is offered in [GitHub Releases](https://github.com/frazerpearce/DroneSim/releases/latest).
 Open **Assets** and select the ZIP for your platform. The source-code ZIP offered
@@ -43,7 +39,7 @@ access. The downloaded game itself has no account or sign-in requirement.
 
 ### Windows
 
-1. Download `DroneSim-0.2.3-Windows.zip`.
+1. Download `DroneSim-0.3.1-Windows.zip`.
 2. Right-click the ZIP and choose **Extract All**.
 3. Open the extracted `windows` folder and run **DroneSim.exe**.
 
@@ -53,7 +49,7 @@ warning. Only proceed if you recognise and trust the downloaded file.
 
 ### macOS
 
-1. Download `DroneSim-0.2.3-macOS.zip` and double-click to extract it.
+1. Download `DroneSim-0.3.1-macOS.zip` and double-click to extract it.
 2. Drag **DroneSim.app** to Applications, or keep it in a folder of your choice.
 3. Open **DroneSim.app**.
 
@@ -287,13 +283,13 @@ This runs the automated checks and creates:
 excluded from Git. They will not appear in a fresh clone. See the
 [development notes](docs/DEVELOPMENT.md) for individual test commands.
 
-The release workflow is configured to build and publish application ZIPs, but its
-runs have been cancelled before executing. Its presence does not mean a newer
-release has been uploaded. Only the verified release links above are advertised.
+Version 0.3.1 is published in GitHub Releases with both platform ZIPs. The release
+workflow is also provided for future builds; published assets are kept separate
+from source control.
 
 ## Status and credits
 
-Current development version: **0.3.1**. **Version 0.2.3 was tested successfully
+Current release: **0.3.1**. **Version 0.2.3 was tested successfully
 on Windows and over LAN by Frazer Pearce.** This replaces the earlier unverified
 platform/network status for that version. The new multi-course selection and
 host/client course synchronisation have automated coverage where possible, but
