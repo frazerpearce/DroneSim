@@ -7,6 +7,7 @@ mkdir -p build/windows
 # An isolated portable editor keeps export temporary files in this project.
 if [[ -z "${GODOT_BIN:-}" && -x "$PWD/.tools/Godot" ]]; then export GODOT_BIN="$PWD/.tools/Godot"; fi
 ./run.sh --headless --log-file /tmp/dronesim-import.log --editor --import --quit
+./run.sh --headless --log-file /tmp/dronesim-recovery.log --script res://test_recovery_views.gd
 ./run.sh --headless --log-file /tmp/dronesim-results.log --script res://test_results.gd
 ./run.sh --headless --log-file /tmp/dronesim-courses.log --script res://test_courses.gd
 ./run.sh --headless --log-file /tmp/dronesim-hud.log --script res://test_hud.gd

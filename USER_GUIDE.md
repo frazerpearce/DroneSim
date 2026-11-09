@@ -1,8 +1,8 @@
-# DroneSim 0.3.3 — User guide
+# DroneSim 0.4.0 — User guide
 
 A keyboard-controlled flight demonstrator for Windows and macOS.
 For download and installation, see [README.md](README.md). This guide covers
-**0.3.3**, including the marked landing zone, swapped final courses and total-time column. The currently published 0.3.1
+**0.4.0**, including automatic crash recovery and six onboard cameras. The currently published 0.3.1
 downloads do not include the marker. Windows and macOS downloads are listed in
 [GitHub Releases](https://github.com/frazerpearce/DroneSim/releases/latest).
 
@@ -14,11 +14,14 @@ downloads do not include the marker. Windows and macOS downloads are listed in
 4. Use **W/S** to pitch forwards/backwards and **A/D** to roll left/right.
 5. Release the steering keys to level the drone. It still carries momentum:
    hold **Space** to brake.
-6. Use **Down Arrow** to descend gently onto a plinth. Press **R** to reset after a crash.
+6. Use **Down Arrow** to descend gently onto a plinth. After a crash, press **Up** to take off again from the automatic respawn; **R** starts a completely new attempt.
 
 The red front rotors mark the nose. Steering follows the drone's orientation,
-so yawing changes which way “forwards” points. **C** switches between chase and
-onboard FPV views. Chase view is a useful place to start.
+so yawing changes which way “forwards” points. **C** toggles the single trailing camera and the selected onboard view.
+Keys **1–6** select front, rear, left, right, up and down onboard cameras.
+The five small views at bottom right show rear/up/down/left/right relative to
+the main camera, in the same cross layout as Dogfight. Steering remains in
+drone body axes when looking through another camera.
 
 ## Flight instruments
 
@@ -42,7 +45,8 @@ Race times and leaderboard results remain numerical.
 | Up / Down Arrow | Climb / descend |
 | Space, held | Brake horizontally and hold height |
 | H | Toggle altitude hold / manual collective |
-| C | Switch chase / FPV camera |
+| C | Toggle trailing / selected onboard camera |
+| 1 / 2 / 3 / 4 / 5 / 6 | Front / rear / left / right / up / down onboard view |
 | R | Reset drone and course attempt |
 | P | Pause / resume |
 | Escape / F2 | Open setup |
@@ -102,10 +106,29 @@ slow, stable landing on the finishing plinth after every gate. A half-second
 of stable contact confirms the landing; the recorded time is taken from the
 start of that contact.
 
-Crashing, pausing, opening setup or losing window focus during a run invalidates
+Pausing, opening setup or losing window focus during a run invalidates
 that attempt. Press **R** to try again. Your best completed time remains available
 between launches under the pilot name. The display shows milliseconds, but timing resolves to the
 120 Hz physics tick.
+
+## Crash recovery
+
+A hard impact, remaining upside down, or becoming stuck against a wall counts as
+a crash. During a timed attempt, recovery adds **10 seconds** and retains the
+gates already completed. The timer continues running while you resume flight.
+
+The drone respawns upright on the nearest clear point on the hangar floor,
+keeping its centre at least **two model body lengths (1.16 m)** from nearby walls
+and obstacles. A conservative clearance map is used around obstacle corners.
+The motors reset: press **Up** to take off again. Respawn teleports never count
+as gate crossings. **R** still discards the attempt and returns to the start.
+A normal upright landing or rest on the floor/plinth is not a crash.
+
+Gate passage is checked against the visible opening with a swept body-centre
+segment. Physical frames constrain the drone itself; there is no additional
+hidden aperture margin. Cross from the course's approach side; reverse passage
+does not count. Crossings exactly on a gate plane and several gates in one
+physics step are handled.
 
 ## Race over a local network
 
@@ -151,15 +174,15 @@ numerical flight telemetry readouts; race results remain numerical.
 ## If something goes wrong
 
 - **The drone will not lift off:** return to flight from setup, resume if paused,
-  press R to reset after a crash, then hold the bound Climb key (Up by default).
+  press Up after automatic crash recovery, or R for a new attempt, then hold the bound Climb key (Up by default).
 - **The drone keeps drifting:** releasing pitch/roll levels it but does not stop
   horizontal momentum. Hold Space to brake.
 - **A gate does not count:** return to its approach side and cross the opening
   forwards. Gates count in order; clipping the frame does not count as a pass.
 - **The timer does not finish:** complete every gate, then descend slowly onto
   the purple plinth and remain settled briefly.
-- **A timed attempt becomes invalid:** reset after pausing, opening setup,
-  losing window focus or crashing. Untimed flying is still available.
+- **A timed attempt becomes invalid:** reset after pausing, opening setup or
+  losing window focus. Crashes instead receive the recovery penalty. Untimed flying is still available.
 - **LAN connection fails:** check that both computers are on the same LAN,
   use matching game versions and UDP ports, and allow the host port through
   its firewall. Internet matchmaking is not provided.

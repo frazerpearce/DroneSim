@@ -17,9 +17,9 @@ Developed by **Frazer Pearce** as an experiment in rapid, AI-assisted software c
 
 ## Download and install
 
-The current source is **0.3.3**, adding a marked landing zone, reordered final
-courses and a ten-course total in the saved-times chart. The published
-0.3.1 downloads below do not yet include that marker.
+The current source is **0.4.0**, adding penalised crash recovery, robust gate
+crossings, six onboard cameras and five auxiliary views. The published 0.3.1
+downloads below do not yet include these additions.
 
 **Published release: 0.3.1** — ten selectable courses, analogue flight instruments,
 LAN ghost racing and saved best times by player/course. Both platform downloads
@@ -37,8 +37,7 @@ Each download includes the guide for its own release. On Windows it is next to
 `DroneSim.exe`; inside the macOS app it is under `Contents/Resources/` (Finder →
 Show Package Contents). The guides linked in this repository describe **0.3.1**.
 
-The repository is currently private, so downloading or cloning requires GitHub
-access. The downloaded game itself has no account or sign-in requirement.
+The repository and downloads are public. The game has no account or sign-in requirement.
 
 ### Windows
 
@@ -69,11 +68,14 @@ Do this only for a download you trust; there is no need to disable Gatekeeper.
 4. Use **W/S** to pitch forwards/backwards and **A/D** to roll left/right.
 5. Release the steering keys to level the drone. It still carries momentum:
    hold **Space** to brake.
-6. Use **Down Arrow** to descend gently onto a plinth. Press **R** to reset after a crash.
+6. Use **Down Arrow** to descend gently onto a plinth. After a crash, press **Up** to take off again from the automatic respawn; **R** starts a completely new attempt.
 
 The red front rotors mark the nose. Steering follows the drone's orientation,
-so yawing changes which way “forwards” points. **C** switches between chase and
-onboard FPV views. Chase view is a useful place to start.
+so yawing changes which way “forwards” points. **C** toggles the single trailing camera and the selected onboard view.
+Keys **1–6** select front, rear, left, right, up and down onboard cameras.
+The five small views at bottom right show rear/up/down/left/right relative to
+the main camera, in the same cross layout as Dogfight. Steering remains in
+drone body axes when looking through another camera.
 
 ## Flight instruments
 
@@ -113,7 +115,8 @@ is involved. The data is in `times.json` in Godot's per-user DroneSim data direc
 | Up / Down Arrow | Climb / descend |
 | Space, held | Brake horizontally and hold height |
 | H | Toggle altitude hold / manual collective |
-| C | Switch chase / FPV camera |
+| C | Toggle trailing / selected onboard camera |
+| 1 / 2 / 3 / 4 / 5 / 6 | Front / rear / left / right / up / down onboard view |
 | R | Reset drone and course attempt |
 | P | Pause / resume |
 | Escape / F2 | Open setup |
@@ -173,10 +176,29 @@ slow, stable landing on the finishing plinth after every gate. A half-second
 of stable contact confirms the landing; the recorded time is taken from the
 start of that contact.
 
-Crashing, pausing, opening setup or losing window focus during a run invalidates
+Pausing, opening setup or losing window focus during a run invalidates
 that attempt. Press **R** to try again. Your best completed time remains available
 between launches under the pilot name. The display shows milliseconds, but timing resolves to the
 120 Hz physics tick.
+
+## Crash recovery
+
+A hard impact, remaining upside down, or becoming stuck against a wall counts as
+a crash. During a timed attempt, recovery adds **10 seconds** and retains the
+gates already completed. The timer continues running while you resume flight.
+
+The drone respawns upright on the nearest clear point on the hangar floor,
+keeping its centre at least **two model body lengths (1.16 m)** from nearby walls
+and obstacles. A conservative clearance map is used around obstacle corners.
+The motors reset: press **Up** to take off again. Respawn teleports never count
+as gate crossings. **R** still discards the attempt and returns to the start.
+A normal upright landing or rest on the floor/plinth is not a crash.
+
+Gate passage is checked against the visible opening with a swept body-centre
+segment. Physical frames constrain the drone itself; there is no additional
+hidden aperture margin. Cross from the course's approach side; reverse passage
+does not count. Crossings exactly on a gate plane and several gates in one
+physics step are handled.
 
 ## Race over a local network
 
@@ -213,7 +235,7 @@ commercial drone. Ground effect, detailed propeller inflow and battery depletion
 are omitted. The demonstrator illustrates basic control and momentum; proficiency
 here does not establish competence with a real aircraft.
 
-## Run the current source (0.3.3)
+## Run the current source (0.4.0)
 
 The repository contains **source code**, not a ready-to-run `.exe` or `.app`.
 Cloning it or downloading GitHub's **Source code** ZIP does not install the game.
@@ -262,9 +284,9 @@ package is supplied or tested here.
 | `docs/DEVELOPMENT.md` | Physics parameters, tests and build details |
 | `godot/project.godot` | Project to open in Godot |
 | `godot/main.tscn`, `godot/main.gd` | Main scene, hangar and game loop |
-| `godot/drone.gd` | Drone dynamics and controller |
+| `godot/drone.gd`, `godot/recovery.gd` | Dynamics, crash detection and safe ground respawn |
 | `godot/course_catalog.gd`, `godot/course.gd` | Ten course definitions and timing |
-| `godot/flight_hud.gd`, `godot/setup.gd` | Analogue instruments and Escape panel |
+| `godot/flight_hud.gd`, `godot/setup.gd`, `godot/auxiliary_views.gd` | Instruments, Escape panel and five camera subviews |
 | `godot/results.gd`, `godot/session.gd`, `godot/transport.gd` | Saved times and LAN racing |
 | `godot/test_*.gd` | Automated checks (directly in `godot/`, not a `tests/` subfolder) |
 | `godot/export_presets.cfg` | Windows and macOS export presets |
@@ -284,7 +306,7 @@ This runs the automated checks and creates:
 
 - `build/windows/DroneSim.exe` and bundled guides;
 - `build/DroneSim.app`, with guides in `Contents/Resources/`;
-- `build/DroneSim-0.3.3-Windows.zip` and `build/DroneSim-0.3.3-macOS.zip`.
+- `build/DroneSim-0.4.0-Windows.zip` and `build/DroneSim-0.4.0-macOS.zip`.
 
 `build/`, `.tools/` and `godot/.godot/` are generated/local directories and are
 excluded from Git. They will not appear in a fresh clone. See the

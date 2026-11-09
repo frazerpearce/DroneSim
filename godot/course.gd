@@ -18,6 +18,7 @@ var state := "READY"
 var seconds := 0.0
 var best := 0.0
 var landed_for := 0.0
+var crashes := 0
 var armed := false
 var previous := SPAWN
 var frames: Array[Node3D] = []
@@ -135,6 +136,7 @@ func reset_run() -> void:
  state = "READY"
  armed = false
  seconds = 0
+ crashes = 0
  landed_for = 0
  previous = SPAWN
  refresh()
@@ -142,15 +144,31 @@ func reset_run() -> void:
 func invalidate(reason: String) -> void:
  if state == "FLYING": state = reason
 
-func crossed(index: int, a: Vector3, b: Vector3) -> bool:
- var centre: Vector3 = POINTS[index]
+func crossing_fraction(index: int, a: Vector3, b: Vector3) -> float:
+ var centre: Vector3=POINTS[index]
  var normal := normals[index]
  var da := (a-centre).dot(normal)
  var db := (b-centre).dot(normal)
- if da >= 0 or db < 0: return false
- var hit := a.lerp(b,-da/(db-da))-centre
+ # A plane endpoint counts, but parallel motion and reverse crossings do not.
+ if da>0.00001 or db<0 or db-da<=0.0000001: return -1.0
+ var t := clampf(-da/(db-da),0,1)
+ var hit := a.lerp(b,t)-centre
  var right := Vector3(normal.z,0,-normal.x)
- return absf(hit.dot(right)) <= gate_width/2-0.42 and absf(hit.y) <= gate_height/2-0.16
+ # Physical gate frames already constrain the drone footprint. Do not shrink
+ # their visible opening a second time by an unrelated fixed margin.
+ if absf(hit.dot(right))>gate_width/2+0.00001 or absf(hit.y)>gate_height/2+0.00001: return -1.0
+ return t
+
+func crossed(index: int, a: Vector3, b: Vector3) -> bool:
+ return crossing_fraction(index,a,b)>=0
+
+func recover(position_now: Vector3) -> void:
+ if state=="FLYING":
+  seconds+=10.0
+  crashes+=1
+ landed_for=0
+ # Teleports must never be interpreted as flight through a gate.
+ previous=position_now
 
 func tick(dt: float, pos: Vector3, velocity: Vector3, crashed: bool, contact: bool) -> void:
  if state == "READY" and contact and pos.distance_to(SPAWN)<0.4: armed = true
@@ -160,12 +178,20 @@ func tick(dt: float, pos: Vector3, velocity: Vector3, crashed: bool, contact: bo
   else: state = "INVALID START — reset"
  if state == "FLYING":
   seconds += dt
-  if crashed: state = "CRASH — reset"
-  elif next_gate < POINTS.size():
-   if crossed(next_gate,previous,pos):
-    next_gate += 1
-    refresh()
-  elif inside_finish_zone(pos) and pos.y < FINISH.y+0.26 and contact and velocity.length()<0.5:
+  if crashed:
+   landed_for=0
+   previous=pos
+   return
+  var last_fraction := -1.0
+  var advanced := false
+  while next_gate<POINTS.size():
+   var fraction := crossing_fraction(next_gate,previous,pos)
+   if fraction<0 or fraction<last_fraction: break
+   last_fraction=fraction
+   next_gate+=1
+   advanced=true
+  if advanced: refresh()
+  if next_gate==POINTS.size() and inside_finish_zone(pos) and pos.y < FINISH.y+0.26 and contact and velocity.length()<0.5:
    landed_for += dt
    if landed_for >= 0.5:
     seconds -= landed_for # timestamp initial stable contact, not dwell completion

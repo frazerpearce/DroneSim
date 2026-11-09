@@ -8,8 +8,9 @@ const DEFAULTS := {
  "pitch_forward":[KEY_W], "pitch_back":[KEY_S], "roll_left":[KEY_A], "roll_right":[KEY_D],
  "yaw_left":[KEY_LEFT], "yaw_right":[KEY_RIGHT], "climb":[KEY_UP], "descend":[KEY_DOWN],
  "brake":[KEY_SPACE], "camera":[KEY_C], "altitude":[KEY_H], "reset":[KEY_R],
- "pause":[KEY_P], "setup":[KEY_F2], "network":[KEY_N], "quit":[KEY_Q,KEY_F10]}
-const LABELS := {"pitch_forward":"Pitch forwards", "pitch_back":"Pitch backwards", "roll_left":"Roll left", "roll_right":"Roll right", "yaw_left":"Yaw left", "yaw_right":"Yaw right", "climb":"Climb", "descend":"Descend", "brake":"Brake / hold", "camera":"Switch camera", "altitude":"Altitude hold", "reset":"Reset / new attempt", "pause":"Pause", "setup":"Setup panel", "network":"LAN panel", "quit":"Quit"}
+ "pause":[KEY_P], "setup":[KEY_F2], "network":[KEY_N], "quit":[KEY_Q,KEY_F10],
+ "view_front":[KEY_1],"view_rear":[KEY_2],"view_left":[KEY_3],"view_right":[KEY_4],"view_up":[KEY_5],"view_down":[KEY_6]}
+const LABELS := {"pitch_forward":"Pitch forwards", "pitch_back":"Pitch backwards", "roll_left":"Roll left", "roll_right":"Roll right", "yaw_left":"Yaw left", "yaw_right":"Yaw right", "climb":"Climb", "descend":"Descend", "brake":"Brake / hold", "camera":"Switch camera", "altitude":"Altitude hold", "reset":"Reset / new attempt", "pause":"Pause", "setup":"Setup panel", "network":"LAN panel", "quit":"Quit","view_front":"Front camera","view_rear":"Rear camera","view_left":"Left camera","view_right":"Right camera","view_up":"Up camera","view_down":"Down camera"}
 const STEERING := ["pitch_forward","pitch_back","roll_left","roll_right","yaw_left","yaw_right","climb","descend","brake"]
 var bindings: Dictionary=DEFAULTS.duplicate(true)
 var path := ""
@@ -88,6 +89,7 @@ func load_file(filename: String) -> bool:
  var used := {}
  for action in DEFAULTS:
   var pair: Variant = config.get_value("bindings",action,DEFAULTS[action])
+  if not config.has_section_key("bindings",action): pair=DEFAULTS[action].filter(func(code): return not used.has(code))
   if not pair is Array or pair.size() > SLOT_COUNT: return false
   for code in pair:
    if not code is int or (code != 0 and (not valid_key(code) or used.has(code))): return false

@@ -4,6 +4,12 @@ var drone: RigidBody3D
 var camera: Camera3D
 var hud: Label
 var fpv := false
+var view := 0
+const VIEW_NAMES := ["FRONT","REAR","LEFT","RIGHT","UP","DOWN"]
+var auxiliary: Control
+var recovery = preload("res://recovery.gd").new()
+var recovery_message := ""
+var recovery_message_for := 0.0
 var paused := false
 var elapsed := 0.0
 var controls = preload("res://controls.gd").new()
@@ -32,6 +38,7 @@ func block(parent: Node3D, pos: Vector3, size: Vector3, colour: Color, solid := 
  mesh.material_override = material(colour)
  holder.add_child(mesh)
  if solid:
+  if pos.y+size.y/2>0.05: holder.add_to_group("respawn_obstacles")
   var collision := CollisionShape3D.new()
   var shape := BoxShape3D.new()
   shape.size = size
@@ -80,6 +87,7 @@ func _ready() -> void:
   arm.rotation.y = atan2(p.x,p.z)
   var rotor := block(drone,p+Vector3(0,0.07,0),Vector3(0.23,0.012,0.035),Color(0.95,0.25,0.15) if i < 2 else Color(0.2,0.7,0.9),false)
   drone.rotor_visuals.append(rotor)
+ set_drone_visual_layer(drone)
  drone.spawn_position = course.SPAWN
  drone.reset_drone()
  camera = Camera3D.new()
@@ -99,6 +107,9 @@ func _ready() -> void:
  var instruments := preload("res://flight_hud.gd").new()
  instruments.game = self
  layer.add_child(instruments)
+ auxiliary=preload("res://auxiliary_views.gd").new()
+ auxiliary.game=self
+ layer.add_child(auxiliary)
  session = preload("res://session.gd").new()
  session.game = self
  add_child(session)
@@ -156,6 +167,7 @@ func select_course(index: int, from_host := false) -> void:
 func reset_attempt() -> void:
  drone.reset_drone()
  course.reset_run()
+ recovery_message_for=0
  if not setup or not setup.visible: paused=false
  drone.freeze = paused
  held.clear()
@@ -181,6 +193,11 @@ func _input(event: InputEvent) -> void:
   setup.show_panel()
   get_viewport().set_input_as_handled()
   return
+ for i in range(6):
+  if controls.matches("view_"+VIEW_NAMES[i].to_lower(),code):
+   change_view(i)
+   get_viewport().set_input_as_handled()
+   return
  for action in ["reset","camera","altitude","pause","setup","network","quit"]:
   if not controls.matches(action,code): continue
   match action:
@@ -200,7 +217,9 @@ func _physics_process(dt: float) -> void:
  drone.command = Vector3(axis("pitch_back","pitch_forward"),axis("yaw_left","yaw_right"),axis("roll_right","roll_left")) if not paused else Vector3.ZERO
  drone.climb = axis("climb","descend") if not paused else 0.0
  drone.brake = controls.strength("brake",held)>0 and not paused
- if not paused: course.tick(dt,drone.position,drone.linear_velocity,drone.crashed,not drone.get_colliding_bodies().is_empty())
+ if not paused:
+  course.tick(dt,drone.position,drone.linear_velocity,drone.crashed,not drone.get_colliding_bodies().is_empty())
+  if drone.crashed: recover_crash()
  for code in wheel_pulses: held.erase(code)
  wheel_pulses.clear()
 
@@ -208,16 +227,48 @@ func _process(dt: float) -> void:
  elapsed += dt
  for i in range(4):
   drone.rotor_visuals[i].rotate_y(drone.rotor_speeds[i]*dt*Drone.SPINS[i])
+ recovery_message_for=maxf(0,recovery_message_for-dt)
+ update_camera(dt)
+ auxiliary.update_views(camera,not setup.visible)
+ var status := recovery_message if recovery_message_for>0 else ("PAUSED" if paused else ("ALTITUDE HOLD" if drone.altitude_hold else "MANUAL COLLECTIVE"))
+ hud.visible = not setup.visible
+ hud.text = "%s | %s\n%s\n\nTIME %.3f s    BEST %s\n\n%s\n%s\nEscape: setup / controls / LAN" % [status,VIEW_NAMES[view] if fpv else "TRAILING",course.title()+" — "+course.state,course.seconds,"%.3f s" % course.best if course.best>0 else "—",session.status,session.leaderboard()]
+
+func set_drone_visual_layer(node: Node) -> void:
+ if node is MeshInstance3D: node.layers=2
+ for child in node.get_children(): set_drone_visual_layer(child)
+
+func change_view(index: int) -> void:
+ view=clampi(index,0,5)
+ fpv=true
+
+func update_camera(dt: float) -> void:
+ camera.cull_mask=1 if fpv else 3
  if fpv:
-  camera.global_transform = drone.global_transform * Transform3D(Basis.IDENTITY,Vector3(0,0.08,-0.24))
+  camera.global_transform=Transform3D(drone.global_basis*auxiliary.view_basis(view),drone.to_global(Vector3(0,0.08,0)))
  else:
   var yaw := Basis(Vector3.UP,drone.rotation.y)
-  var destination: Vector3 = drone.position + yaw * Vector3(0,1.7,3.5)
-  destination.x = clampf(destination.x,-19.5,19.5)
-  destination.y = clampf(destination.y,0.35,17.5)
-  destination.z = clampf(destination.z,-29.5,29.5)
-  camera.position = camera.position.lerp(destination,1-exp(-dt*7))
+  var destination: Vector3=drone.position+yaw*Vector3(0,1.7,3.5)
+  destination=destination.clamp(Vector3(-19.5,0.35,-29.5),Vector3(19.5,17.5,29.5))
+  camera.position=camera.position.lerp(destination,1-exp(-dt*7))
   camera.look_at(drone.position+Vector3(0,0.15,0))
- var status := "CRASH — reset to retry" if drone.crashed else ("PAUSED" if paused else ("ALTITUDE HOLD" if drone.altitude_hold else "MANUAL COLLECTIVE"))
- hud.visible = not setup.visible
- hud.text = "%s | %s\n%s\n\nTIME %.3f s    BEST %s\n\n%s\n%s\nEscape: setup / controls / LAN" % [status,"FPV" if fpv else "CHASE",course.title()+" — "+course.state,course.seconds,"%.3f s" % course.best if course.best>0 else "—",session.status,session.leaderboard()]
+
+func recover_crash() -> bool:
+ if not drone.crashed: return false
+ recovery.collect(self)
+ var point: Vector3=recovery.nearest(drone.position)
+ if not point.is_finite():
+  paused=true
+  drone.freeze=true
+  recovery_message="No clear ground respawn — reset"
+  recovery_message_for=10
+  return false
+ var penalised: bool=course.state=="FLYING"
+ var reason: String=drone.crash_reason
+ var yaw := atan2(drone.basis.z.x,drone.basis.z.z)
+ course.recover(point)
+ drone.reset_at(point,yaw)
+ held.clear()
+ recovery_message="RECOVERED "+reason+(" — +10 s" if penalised else "")+" — Up to take off"
+ recovery_message_for=4
+ return true

@@ -1,4 +1,4 @@
-# DroneSim development notes — 0.3.3
+# DroneSim development notes — 0.4.0
 
 Keyboard quadcopter racing in a 40 × 60 × 18 m hangar, for macOS and Windows.
 
@@ -31,7 +31,8 @@ Keyboard bindings refer to physical keys, so their positions survive layout chan
 | Up / down | Climb / descend |
 | Space, held | Brake horizontally and hold height |
 | H | Toggle altitude hold / manual collective |
-| C | Chase / FPV camera |
+| C | Trailing / selected onboard camera |
+| 1–6 | Front, rear, left, right, up, down onboard cameras |
 | R | Reset drone and begin a new attempt |
 | P | Pause / resume |
 | F2 / Escape | Setup |
@@ -52,7 +53,7 @@ size. The timer starts when the drone leaves contact with the starting plinth.
 
 The finish requires all gates of the selected course, contact within the finish plinth, speed below
 0.5 m/s and 0.5 seconds of stable landing. The recorded time is backdated to the
-start of that stable contact. Crashing, pausing, opening setup or losing focus
+start of that stable contact. Pausing, opening setup or losing focus
 invalidates an airborne attempt. Reset to retry. Reset retains your best time;
 saved personal bests remain when hosting, joining or disconnecting.
 Times resolve to the 120 Hz physics tick, despite displaying three decimals.
@@ -60,7 +61,7 @@ Times resolve to the 120 Hz physics tick, despite displaying three decimals.
 ## LAN ghost race
 
 Either Mac or Windows can host up to eight pilots. Everyone must use version
-0.3.3 and the same selected course. Open **Setup → LAN race**:
+0.4.0 and the same selected course. Open **Setup → LAN race**:
 
 1. Host selects the UDP port (default **24568**) and clicks **HOST**.
 2. Other pilots enter the host's LAN IP and the same port, then click **JOIN**.
@@ -153,7 +154,7 @@ Additional dynamics checks cover RPM lag, thrust scaling, spin-down, anisotropic
 drag, force/torque allocation, saturation, unassisted angular acceleration and
 motors-off free fall. The optional live ENet check connects a host/client over loopback, exchanges
 states and times, and checks disconnect cleanup. Version 0.2.3 was manually tested on Windows and over LAN by Frazer Pearce,
-who reported both working. The multi-course changes in 0.3.3 have not yet been
+who reported both working. The multi-course changes in 0.4.0 have not yet been
 manually validated across machines. Windows cross-export alone does not
 constitute Windows gameplay testing.
 
@@ -164,15 +165,15 @@ licences are available at https://godotengine.org/license/.
 
 `godot/course_catalog.gd` defines the ten named courses, difficulty hints,
 clear gate apertures and waypoints. `course.gd` rebuilds gate collision geometry,
-labels and the suggested route when selection changes. The aperture test includes
-a conservative drone footprint margin. Timers, gate progress and spawn state
+labels and the suggested route when selection changes. The aperture test follows
+the visible clear opening; collision geometry constrains the footprint. Timers, gate progress and spawn state
 reset on a change; best times are saved per player and course across launches.
 
 The selection is exposed in Escape → Flight & course. LAN snapshots include the
 host's selected course; clients apply it before rendering other pilots' states.
 Client course changes are disabled while connected. Pilot state validation checks
 the gate count against that pilot's advertised course. Ghosts and leaderboard
-rows are filtered to the active course. All peers require version 0.3.3.
+rows are filtered to the active course. All peers require version 0.4.0.
 
 `test_courses.gd` checks all ten gate lists, aperture direction, finish detection,
 per-course best restoration, course-length packet validation and the Escape
@@ -198,3 +199,32 @@ entry has an explicit stable ID. Courses 9 and 10 were swapped in 0.3.3 without
 moving old results to a different route. Legacy numeric course preferences are
 translated to their original stable IDs. The Total column sums the ten current
 routes' personal bests only when all ten exist; unrelated saved IDs are ignored.
+
+## Recovery and cameras (0.4.0)
+
+`drone.gd` detects hard-contact velocity changes above 4 m/s, inversion lasting
+0.75 seconds, or low-speed non-floor/sideways contact lasting 1.5 seconds. A
+0.5-second grace period follows reset. Upright floor/plinth rest is exempt.
+`main.gd` consumes each crash once: `course.recover` adds ten seconds to a valid
+active run, preserves gate progress and reanchors the segment history so the
+teleport cannot advance gates. Motor speeds, rates and velocity reset upright.
+
+`recovery.gd` projects low collision boxes into their actual ground-plane axes,
+expands them by two collision-body lengths (1.16 m), and searches edge projections
+and intersections for the nearest point outside their union and inside wall
+clearance bounds. Expanded rectangular corners are deliberately conservative.
+The floor is excluded; elevated geometry with sufficient vertical clearance is
+excluded too. No valid location causes a paused error rather than unsafe spawning.
+
+Gate tests use swept centre segments through the actual clear aperture, without
+subtracting fixed footprint margins already enforced by physics. Plane endpoints,
+forward direction and chronological multiple-gate crossings are explicit.
+
+`auxiliary_views.gd` adapts Dogfight's rear/up/down/left/right cross, sharing the
+existing World3D through five low-resolution SubViewports refreshed at up to 30 Hz.
+All six onboard bases match Dogfight; number keys select them, C toggles the one
+trailing camera. Onboard cameras exclude the local drone mesh layer to avoid the
+body blocking downward/rear views. Hidden setup pauses auxiliary rendering.
+`test_recovery_views.gd` includes real near-edge flight, solver contact tests for
+wall/inversion, penalty/respawn checks, six camera bases, subview layout/world
+sharing and legacy binding migration.

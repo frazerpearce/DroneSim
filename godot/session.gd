@@ -1,6 +1,6 @@
 extends Node
 const Transport = preload("res://transport.gd")
-const PROTOCOL := "DroneSim-0.3.3-courses-v1"
+const PROTOCOL := "DroneSim-0.4.0-courses-v1"
 var net = Transport.new()
 var game: Node3D
 var status := "Single player"

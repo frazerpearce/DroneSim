@@ -47,7 +47,7 @@ func _process(_dt: float) -> void:
 func _draw() -> void:
  if not game or not game.drone: return
  var screen := get_viewport_rect().size
- var centre := Vector2(screen.x/2,screen.y-115)
+ var centre := Vector2(minf(screen.x/2,screen.x-800),screen.y-115)
  var heading := heading_of(game.drone.basis)
  compass(centre-Vector2(225,0),heading)
  attitude(centre,attitude_of(game.drone.basis))

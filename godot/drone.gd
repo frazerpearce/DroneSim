@@ -1,5 +1,6 @@
 extends RigidBody3D
 # Representative 1.2 kg quadcopter. SI units throughout; body forward is -Z.
+const BODY_SIZE := Vector3(0.58,0.22,0.58)
 const MASS := 1.2
 const ARM := 0.19
 const MAX_THRUST := 7.0 # N per motor; total thrust/weight = 2.38
@@ -31,6 +32,10 @@ var target_height := 0.15
 var crashed := false
 var motors_armed := false
 var last_velocity := Vector3.ZERO
+var crash_reason := ""
+var inverted_for := 0.0
+var stuck_for := 0.0
+var recovery_grace := 0.0
 var rotor_visuals: Array[Node3D] = []
 
 func _ready() -> void:
@@ -47,20 +52,27 @@ func _ready() -> void:
  max_contacts_reported = 8
  var shape := CollisionShape3D.new()
  var box := BoxShape3D.new()
- box.size = Vector3(0.58,0.22,0.58)
+ box.size = BODY_SIZE
  shape.shape = box
  add_child(shape)
 
 func reset_drone() -> void:
+ reset_at(spawn_position)
+
+func reset_at(position_now: Vector3, yaw := 0.0) -> void:
  freeze = true
- transform = Transform3D(Basis.IDENTITY, spawn_position)
+ transform = Transform3D(Basis(Vector3.UP,yaw), position_now)
  linear_velocity = Vector3.ZERO
  angular_velocity = Vector3.ZERO
  motors.fill(0.0)
  rotor_speeds.fill(0.0)
  motor_targets.fill(0.0)
- target_height = spawn_position.y
+ target_height = position_now.y
  crashed = false
+ crash_reason = ""
+ inverted_for = 0
+ stuck_for = 0
+ recovery_grace = 0.5
  motors_armed = false
  last_velocity = Vector3.ZERO
  freeze = false
@@ -68,9 +80,11 @@ func reset_drone() -> void:
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
  var dt := state.step
- if state.get_contact_count() > 0 and (last_velocity - state.linear_velocity).length() > 4.0:
-  crashed = true
- last_velocity = state.linear_velocity
+ var wall_contact := false
+ for i in range(state.get_contact_count()):
+  var normal := state.transform.basis*state.get_contact_local_normal(i)
+  if normal.y<0.65: wall_contact=true
+ detect_crash(dt,state.linear_velocity,state.transform.basis.y,state.get_contact_count()>0,wall_contact)
  if not motors_armed and not crashed and climb > 0: motors_armed = true
  var basis_now := state.transform.basis.orthonormalized()
  var up := basis_now.y
@@ -150,3 +164,18 @@ func aerodynamic_force(air_body: Vector3) -> Vector3:
 
 func aerodynamic_torque(rates: Vector3) -> Vector3:
  return -Vector3(0.004,0.006,0.004)*rates-Vector3(0.001,0.002,0.001)*rates*rates.abs()
+
+func detect_crash(dt: float, velocity: Vector3, up: Vector3, contact: bool, wall_contact: bool) -> void:
+ var impact := (last_velocity-velocity).length()
+ last_velocity=velocity
+ if recovery_grace>0:
+  recovery_grace=maxf(0,recovery_grace-dt)
+  return
+ if crashed: return
+ inverted_for=inverted_for+dt if up.y<0 else 0.0
+ var immobilised := contact and velocity.length()<0.3 and (wall_contact or up.y<0.35)
+ stuck_for=stuck_for+dt if immobilised else 0.0
+ if contact and impact>4.0: crash_reason="IMPACT"
+ elif inverted_for>=0.75: crash_reason="INVERTED"
+ elif stuck_for>=1.5: crash_reason="STUCK"
+ if not crash_reason.is_empty(): crashed=true
